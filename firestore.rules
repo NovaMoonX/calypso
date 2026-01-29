@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Vault items - strictly authorized access
+    match /vault_items/{itemId} {
+      // Allow read if the user owns the item
+      allow read: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      
+      // Allow create if the user is authenticated and sets themselves as owner
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      
+      // Allow update if the user owns the item
+      allow update: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      
+      // Allow delete if the user owns the item
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
