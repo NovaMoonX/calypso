@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
+import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { useAuth } from '@hooks/useAuth';
 
 export function Login() {
@@ -8,6 +9,7 @@ export function Login() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const { sendSignInLink } = useAuth();
+  const { addToast } = useToast();
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +24,11 @@ export function Login() {
       setSent(true);
     } catch (error) {
       console.error('Error sending sign-in link:', error);
-      alert('Failed to send sign-in link. Please try again.');
+      addToast({ 
+        title: 'Error', 
+        description: 'Failed to send sign-in link. Please try again.', 
+        type: 'error' 
+      });
     } finally {
       setLoading(false);
     }

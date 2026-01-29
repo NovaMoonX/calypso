@@ -20,7 +20,7 @@ export class EncryptionService {
   private static readonly KEY_LENGTH = 256;
   private static readonly IV_LENGTH = 12; // 96 bits for GCM
   private static readonly SALT_LENGTH = 16;
-  private static readonly PBKDF2_ITERATIONS = 100000;
+  private static readonly PBKDF2_ITERATIONS = 600000; // OWASP 2025 recommendation
 
   /**
    * Derive a master key from a passphrase using PBKDF2

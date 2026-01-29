@@ -165,6 +165,12 @@ export function VaultProvider({ children }: VaultProviderProps) {
       throw new Error('User not authenticated or master key not set');
     }
 
+    // Validate file size (max 50MB)
+    const MAX_FILE_SIZE = 50 * 1024 * 1024;
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error('File size exceeds 50MB limit');
+    }
+
     // Read file as ArrayBuffer
     const fileBuffer = await file.arrayBuffer();
 

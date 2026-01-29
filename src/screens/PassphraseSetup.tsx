@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
+import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { useAuth } from '@hooks/useAuth';
 
 export function PassphraseSetup() {
@@ -10,6 +11,7 @@ export function PassphraseSetup() {
   const [loading, setLoading] = useState(false);
   const [isReturningUser, setIsReturningUser] = useState(false);
   const { user, setMasterKeyFromPassphrase } = useAuth();
+  const { addToast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,12 +26,20 @@ export function PassphraseSetup() {
     e.preventDefault();
 
     if (!isReturningUser && passphrase !== confirmPassphrase) {
-      alert('Passphrases do not match');
+      addToast({ 
+        title: 'Error', 
+        description: 'Passphrases do not match', 
+        type: 'error' 
+      });
       return;
     }
 
     if (passphrase.length < 12) {
-      alert('Passphrase must be at least 12 characters long');
+      addToast({ 
+        title: 'Error', 
+        description: 'Passphrase must be at least 12 characters long', 
+        type: 'error' 
+      });
       return;
     }
 
@@ -40,10 +50,21 @@ export function PassphraseSetup() {
       if (user && isReturningUser) {
         const storedSalt = window.localStorage.getItem(`salt_${user.uid}`);
         if (storedSalt) {
-          const saltBinary = atob(storedSalt);
-          salt = new Uint8Array(saltBinary.length);
-          for (let i = 0; i < saltBinary.length; i++) {
-            salt[i] = saltBinary.charCodeAt(i);
+          try {
+            const saltBinary = atob(storedSalt);
+            salt = new Uint8Array(saltBinary.length);
+            for (let i = 0; i < saltBinary.length; i++) {
+              salt[i] = saltBinary.charCodeAt(i);
+            }
+          } catch (err) {
+            console.error('Error parsing salt:', err);
+            addToast({ 
+              title: 'Error', 
+              description: 'Invalid stored encryption data. Please contact support.', 
+              type: 'error' 
+            });
+            setLoading(false);
+            return;
           }
         }
       }
@@ -52,7 +73,11 @@ export function PassphraseSetup() {
       navigate('/dashboard');
     } catch (error) {
       console.error('Error setting master key:', error);
-      alert('Failed to set up encryption. Please try again.');
+      addToast({ 
+        title: 'Error', 
+        description: 'Failed to set up encryption. Please check your passphrase and try again.', 
+        type: 'error' 
+      });
     } finally {
       setLoading(false);
     }

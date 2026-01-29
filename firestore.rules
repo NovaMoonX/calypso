@@ -10,8 +10,10 @@ service cloud.firestore {
       // Allow create if the user is authenticated and sets themselves as owner
       allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
       
-      // Allow update if the user owns the item
-      allow update: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      // Allow update if the user owns the item and doesn't change the ownerId
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.ownerId
+        && request.auth.uid == request.resource.data.ownerId;
       
       // Allow delete if the user owns the item
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;

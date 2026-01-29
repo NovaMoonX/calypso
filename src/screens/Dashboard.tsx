@@ -5,6 +5,7 @@ import { Modal } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
 import { Textarea } from '@moondreamsdev/dreamer-ui/components';
 import { Card } from '@moondreamsdev/dreamer-ui/components';
+import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { useVault } from '@hooks/useVault';
 import { useAuth } from '@hooks/useAuth';
 import { VaultItem } from '@lib/types/vault.types';
@@ -13,6 +14,7 @@ import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@compo
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
+  const { addToast } = useToast();
   const {
     items,
     currentPath,
@@ -42,9 +44,14 @@ export function Dashboard() {
       await createFolder(newFolderName);
       setNewFolderName('');
       setShowNewFolderModal(false);
+      addToast({ title: 'Success', description: 'Folder created successfully' });
     } catch (error) {
       console.error('Error creating folder:', error);
-      alert('Failed to create folder');
+      addToast({ 
+        title: 'Error', 
+        description: 'Failed to create folder', 
+        type: 'error' 
+      });
     }
   };
 
@@ -56,9 +63,14 @@ export function Dashboard() {
       setNewTextName('');
       setNewTextContent('');
       setShowNewTextModal(false);
+      addToast({ title: 'Success', description: 'Text item created successfully' });
     } catch (error) {
       console.error('Error creating text:', error);
-      alert('Failed to create text item');
+      addToast({ 
+        title: 'Error', 
+        description: 'Failed to create text item', 
+        type: 'error' 
+      });
     }
   };
 
@@ -69,22 +81,34 @@ export function Dashboard() {
       await uploadFile(selectedFile, uploadType);
       setSelectedFile(null);
       setShowUploadModal(false);
+      addToast({ title: 'Success', description: 'File uploaded successfully' });
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('Failed to upload file');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to upload file';
+      addToast({ 
+        title: 'Error', 
+        description: errorMessage, 
+        type: 'error' 
+      });
     }
   };
 
   const handleDelete = async (itemId: string, itemName: string) => {
+    // Using native confirm for now - could be replaced with custom modal
     if (!confirm(`Are you sure you want to delete "${itemName}"?`)) {
       return;
     }
 
     try {
       await deleteItem(itemId);
+      addToast({ title: 'Success', description: 'Item deleted successfully' });
     } catch (error) {
       console.error('Error deleting item:', error);
-      alert('Failed to delete item');
+      addToast({ 
+        title: 'Error', 
+        description: 'Failed to delete item', 
+        type: 'error' 
+      });
     }
   };
 
