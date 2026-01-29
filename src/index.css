@@ -8,14 +8,16 @@
 }
 
 @theme app {
-	--color-background: var(--color-slate-100);
-	--color-foreground: var(--color-slate-900);
+	--color-background: var(--color-slate-950);
+	--color-foreground: var(--color-slate-100);
+	--color-card: var(--color-slate-900);
 }
 
-/* Override the variables to create a dark theme */
-.dark {
-	--color-background: var(--color-slate-900);
-	--color-foreground: var(--color-slate-100);
+/* Override the variables to create a light theme (if needed) */
+.light {
+	--color-background: var(--color-slate-100);
+	--color-foreground: var(--color-slate-900);
+	--color-card: var(--color-white);
 }
 
 #root {
