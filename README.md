@@ -221,15 +221,7 @@ If you forget your passphrase:
 3. Deploy Firestore rules: `firebase deploy --only firestore:rules`
 4. Restart the dev server: `npm run dev`
 
-### Demo Mode
-The app includes fallback Firebase configuration for UI testing. However, **all functionality requires valid Firebase credentials**:
-- Authentication will not work without proper API keys
-- Folder/file creation requires Firestore access
-- File uploads require Firebase Storage
-
-To enable full functionality, configure your Firebase project credentials in `.env`.
-
-## UI Design & Theme
+## Design & Visual Aesthetic
 
 ### Monochrome Security Aesthetic
 Calypso features a unique monochrome security theme designed for a professional, terminal-inspired look:

@@ -158,7 +158,7 @@ import { helper } from '@utils/helper';
 5. **Data Schema**: Update TypeScript interfaces if data structure changes
 6. **Tech Stack**: Update versions or add new technologies
 7. **Troubleshooting**: Add solutions to new common issues
-8. **UI Design & Theme**: Document design changes or new themes
+8. **Design & Visual Aesthetic**: Document design changes or visual updates
 
 **README Update Checklist:**
 - [ ] Is this change user-visible or security-related?
@@ -198,7 +198,7 @@ The README is the **primary documentation** for potential users. Outdated docume
 4. Usage Guide (step-by-step user flows)
 5. Security Notes (critical warnings)
 6. Data Schema (TypeScript interfaces)
-7. UI Design & Theme (visual design system)
+7. Design & Visual Aesthetic (visual design system)
 8. Firestore Rules (security rule explanations)
 9. Troubleshooting (common issues and solutions)
 10. Project Structure (file organization)
