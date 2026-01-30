@@ -120,7 +120,26 @@ firebase deploy
 - Your passphrase is **never** stored or transmitted
 - Without your passphrase, your data **cannot** be decrypted
 - Make sure to remember your passphrase or store it securely
+- Save your recovery codes in a secure location - they can restore access if you forget your passphrase
 - Even Firebase administrators cannot access your encrypted data
+
+## Troubleshooting
+
+### "Create folder/text not working"
+**Cause**: Firebase credentials not configured
+**Solution**: 
+1. Create a `.env` file with your Firebase credentials (see `.env.example`)
+2. Ensure Firebase Authentication is enabled in your Firebase console
+3. Deploy Firestore rules: `firebase deploy --only firestore:rules`
+4. Restart the dev server: `npm run dev`
+
+### Demo Mode
+The app includes fallback Firebase configuration for UI testing. However, **all functionality requires valid Firebase credentials**:
+- Authentication will not work without proper API keys
+- Folder/file creation requires Firestore access
+- File uploads require Firebase Storage
+
+To enable full functionality, configure your Firebase project credentials in `.env`.
 
 ## Firestore Rules
 
