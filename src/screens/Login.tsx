@@ -62,9 +62,9 @@ export function Login() {
               type="submit"
               variant="primary"
               className="w-full"
-              disabled={loading}
+              loading={loading}
             >
-              {loading ? 'Sending...' : 'Send Sign-In Link'}
+              Send Sign-In Link
             </Button>
           </form>
         ) : (
