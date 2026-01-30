@@ -11,15 +11,26 @@ export function RecoveryCodes() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Redirect if not authenticated
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    // Check if codes already exist
+    if (RecoveryCodesService.hasRecoveryCodes(user.uid)) {
+      // Skip to dashboard if codes already generated
+      navigate('/dashboard');
+      return;
+    }
+
     // Generate recovery codes on mount
     const generatedCodes = RecoveryCodesService.generateRecoveryCodes();
     setCodes(generatedCodes);
     
     // Store hashed versions
-    if (user) {
-      RecoveryCodesService.storeRecoveryCodes(user.uid, generatedCodes);
-    }
-  }, [user]);
+    RecoveryCodesService.storeRecoveryCodes(user.uid, generatedCodes);
+  }, [user, navigate]);
 
   const handleDownload = () => {
     const codesText = codes.join('\n');
@@ -62,12 +73,13 @@ export function RecoveryCodes() {
 
         <div className="space-y-4">
           <div className="rounded-lg border border-warning/20 bg-warning/10 p-4 text-sm font-mono">
-            <strong className="block mb-2">⚠️ CRITICAL:</strong>
+            <strong className="block mb-2" aria-label="Critical warning">⚠️ CRITICAL:</strong>
             <ul className="list-disc list-inside space-y-1 text-warning-foreground/80">
               <li>Each code can only be used once</li>
               <li>Store them in a secure location (password manager, safe, etc.)</li>
-              <li>These codes bypass your passphrase for account recovery</li>
+              <li>Download now - you won't see them again</li>
               <li>Do not share these codes with anyone</li>
+              <li>Recovery flow coming soon - save codes for future use</li>
             </ul>
           </div>
 

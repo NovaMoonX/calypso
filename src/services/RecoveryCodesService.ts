@@ -1,5 +1,7 @@
 /**
  * Recovery codes service for account recovery
+ * Note: Recovery codes should be stored in Firestore with proper security rules
+ * for production use. This implementation uses SHA-256 hashing.
  */
 
 export class RecoveryCodesService {
@@ -21,16 +23,23 @@ export class RecoveryCodesService {
   }
   
   /**
-   * Generate a single recovery code
+   * Generate a single recovery code using rejection sampling for uniform distribution
    */
   private static generateSingleCode(): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const bytes = new Uint8Array(this.CODE_LENGTH);
-    crypto.getRandomValues(bytes);
-    
     let code = '';
+    
     for (let i = 0; i < this.CODE_LENGTH; i++) {
-      code += chars[bytes[i] % chars.length];
+      // Use rejection sampling to ensure uniform distribution
+      let charIndex: number;
+      do {
+        const randomByte = new Uint8Array(1);
+        crypto.getRandomValues(randomByte);
+        charIndex = randomByte[0];
+      } while (charIndex >= 256 - (256 % chars.length)); // Reject biased values
+      
+      code += chars[charIndex % chars.length];
+      
       // Add hyphen every 4 characters for readability
       if ((i + 1) % 4 === 0 && i < this.CODE_LENGTH - 1) {
         code += '-';
@@ -54,15 +63,27 @@ export class RecoveryCodesService {
   }
   
   /**
-   * Verify a recovery code against a hash
+   * Verify a recovery code against a hash using constant-time comparison
    */
   static async verifyRecoveryCode(code: string, hash: string): Promise<boolean> {
     const codeHash = await this.hashRecoveryCode(code);
-    return codeHash === hash;
+    
+    // Constant-time string comparison to prevent timing attacks
+    if (codeHash.length !== hash.length) {
+      return false;
+    }
+    
+    let result = 0;
+    for (let i = 0; i < codeHash.length; i++) {
+      result |= codeHash.charCodeAt(i) ^ hash.charCodeAt(i);
+    }
+    
+    return result === 0;
   }
   
   /**
    * Store recovery codes in localStorage (hashed)
+   * WARNING: For production, store in Firestore with security rules
    */
   static async storeRecoveryCodes(userId: string, codes: string[]): Promise<void> {
     const hashedCodes = await Promise.all(
@@ -78,46 +99,44 @@ export class RecoveryCodesService {
   }
   
   /**
-   * Check if a recovery code is valid
+   * Check if recovery codes already exist for a user
    */
-  static async validateRecoveryCode(userId: string, code: string): Promise<boolean> {
+  static hasRecoveryCodes(userId: string): boolean {
+    return window.localStorage.getItem(`recovery_codes_${userId}`) !== null;
+  }
+  
+  /**
+   * Validate recovery code and mark as used (atomic operation)
+   * Returns true if code is valid and successfully marked as used
+   */
+  static async validateAndConsumeRecoveryCode(userId: string, code: string): Promise<boolean> {
     const stored = window.localStorage.getItem(`recovery_codes_${userId}`);
     if (!stored) return false;
     
     try {
-      const { codes } = JSON.parse(stored);
+      const storage = JSON.parse(stored);
       
-      // Check if code matches any stored hash
-      for (const hash of codes) {
-        if (await this.verifyRecoveryCode(code, hash)) {
-          return true;
+      // Find matching code
+      let matchedIndex = -1;
+      for (let i = 0; i < storage.codes.length; i++) {
+        if (await this.verifyRecoveryCode(code, storage.codes[i])) {
+          matchedIndex = i;
+          break;
         }
       }
       
-      return false;
+      if (matchedIndex === -1) {
+        return false;
+      }
+      
+      // Remove the used code atomically
+      storage.codes.splice(matchedIndex, 1);
+      window.localStorage.setItem(`recovery_codes_${userId}`, JSON.stringify(storage));
+      
+      return true;
     } catch (error) {
       console.error('Error validating recovery code:', error);
       return false;
-    }
-  }
-  
-  /**
-   * Mark a recovery code as used
-   */
-  static async markCodeAsUsed(userId: string, code: string): Promise<void> {
-    const stored = window.localStorage.getItem(`recovery_codes_${userId}`);
-    if (!stored) return;
-    
-    try {
-      const storage = JSON.parse(stored);
-      const codeHash = await this.hashRecoveryCode(code);
-      
-      // Remove the used code
-      storage.codes = storage.codes.filter((hash: string) => hash !== codeHash);
-      
-      window.localStorage.setItem(`recovery_codes_${userId}`, JSON.stringify(storage));
-    } catch (error) {
-      console.error('Error marking code as used:', error);
     }
   }
 }
