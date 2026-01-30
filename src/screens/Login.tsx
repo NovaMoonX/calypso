@@ -76,9 +76,12 @@ export function Login() {
           </form>
         ) : (
           <div className="space-y-4 text-center">
-            <div className="rounded-lg border border-border bg-card p-4">
+            <div className="rounded-lg border border-border bg-card p-4 space-y-3">
               <p className="text-sm font-mono">
                 Check your email! We've sent a sign-in link to <strong className="text-foreground">{email}</strong>
+              </p>
+              <p className="text-xs text-foreground/60 font-mono">
+                💡 Didn't receive it? Check your spam folder
               </p>
             </div>
             <Button
