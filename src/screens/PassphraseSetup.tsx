@@ -70,7 +70,13 @@ export function PassphraseSetup() {
       }
 
       await setMasterKeyFromPassphrase(passphrase, salt);
-      navigate('/dashboard');
+      
+      // Redirect to recovery codes for new users, dashboard for returning users
+      if (isReturningUser) {
+        navigate('/dashboard');
+      } else {
+        navigate('/auth/recovery-codes');
+      }
     } catch (error) {
       console.error('Error setting master key:', error);
       addToast({ 

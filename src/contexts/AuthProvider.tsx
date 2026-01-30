@@ -71,6 +71,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (user) {
       window.localStorage.removeItem(`salt_${user.uid}`);
     }
+    
+    // Redirect to login page
+    window.location.href = '/login';
   };
 
   const contextValue = {

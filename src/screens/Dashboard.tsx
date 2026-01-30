@@ -11,6 +11,7 @@ import { useAuth } from '@hooks/useAuth';
 import { VaultItem } from '@lib/types/vault.types';
 import { Plus, ChevronLeft, Trash } from '@moondreamsdev/dreamer-ui/symbols';
 import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@components/Icons';
+import { CalypsoLogoWithText } from '@components/Logo';
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
@@ -144,15 +145,15 @@ export function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-mono">
       {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Calypso</h1>
+          <CalypsoLogoWithText size={32} />
           <div className="flex items-center gap-4">
-            <span className="text-sm text-foreground/70">{user?.email}</span>
-            <Button variant="secondary" onClick={signOut}>
-              Sign Out
+            <span className="text-xs text-foreground/70">{user?.email}</span>
+            <Button variant="secondary" onClick={signOut} className="font-mono text-xs tracking-wider">
+              SIGN OUT
             </Button>
           </div>
         </div>
@@ -165,13 +166,13 @@ export function Dashboard() {
             <Button
               variant="secondary"
               onClick={navigateBack}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 font-mono text-xs tracking-wider"
             >
               <ChevronLeft size={16} />
-              Back
+              BACK
             </Button>
           )}
-          <span className="text-sm text-foreground/70">{currentPath.join(' / ')}</span>
+          <span className="text-xs text-foreground/70 font-mono">{currentPath.join(' / ')}</span>
         </div>
       </div>
 
@@ -179,17 +180,17 @@ export function Dashboard() {
       <main className="container mx-auto px-4 py-8">
         {/* Actions */}
         <div className="mb-6 flex flex-wrap gap-2">
-          <Button variant="primary" onClick={() => setShowNewFolderModal(true)}>
+          <Button variant="primary" onClick={() => setShowNewFolderModal(true)} className="font-mono text-xs tracking-wider">
             <Plus size={16} className="mr-2" />
-            New Folder
+            NEW FOLDER
           </Button>
-          <Button variant="primary" onClick={() => setShowNewTextModal(true)}>
+          <Button variant="primary" onClick={() => setShowNewTextModal(true)} className="font-mono text-xs tracking-wider">
             <Plus size={16} className="mr-2" />
-            New Text
+            NEW TEXT
           </Button>
-          <Button variant="primary" onClick={() => setShowUploadModal(true)}>
+          <Button variant="primary" onClick={() => setShowUploadModal(true)} className="font-mono text-xs tracking-wider">
             <Plus size={16} className="mr-2" />
-            Upload File
+            UPLOAD FILE
           </Button>
         </div>
 
@@ -225,11 +226,11 @@ export function Dashboard() {
                     {getItemIcon(item)}
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm font-medium truncate" title={item.metadata.name}>
+                    <p className="text-xs font-mono truncate uppercase tracking-wider" title={item.metadata.name}>
                       {item.metadata.name}
                     </p>
                     {item.metadata.size && (
-                      <p className="text-xs text-foreground/50">
+                      <p className="text-xs text-foreground/50 font-mono">
                         {formatFileSize(item.metadata.size)}
                       </p>
                     )}

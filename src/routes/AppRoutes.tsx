@@ -5,6 +5,7 @@ import Loading from '@ui/Loading';
 import Login from '@screens/Login';
 import AuthVerify from '@screens/AuthVerify';
 import PassphraseSetup from '@screens/PassphraseSetup';
+import RecoveryCodes from '@screens/RecoveryCodes';
 import Dashboard from '@screens/Dashboard';
 
 export const router = createBrowserRouter([
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
       {
         path: 'auth/passphrase',
         element: <PassphraseSetup />,
+      },
+      {
+        path: 'auth/recovery-codes',
+        element: <RecoveryCodes />,
       },
       {
         path: 'dashboard',
