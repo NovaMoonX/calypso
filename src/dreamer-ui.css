@@ -1,5 +1,6 @@
 /** Necessary theme styles for Dreamer UI library - Monochrome Security Theme */
 
+/* Dark theme (default) */
 @theme dreamer-ui {
   --color-primary: var(--color-gray-300);
   --color-primary-foreground: var(--color-black);
@@ -25,4 +26,32 @@
 
   --color-tooltip: var(--color-gray-800);
   --color-tooltip-foreground: var(--color-gray-100);
+}
+
+/* Light theme - inverse of dark theme, still minimalist monochrome */
+.light {
+  --color-primary: var(--color-gray-700);
+  --color-primary-foreground: var(--color-white);
+  --color-secondary: var(--color-gray-300);
+  --color-secondary-foreground: var(--color-gray-900);
+  --color-muted: var(--color-gray-200);
+  --color-muted-foreground: var(--color-gray-600);
+
+  --color-accent: var(--color-gray-600);
+  --color-accent-foreground: var(--color-white);
+
+  --color-success: var(--color-gray-600);
+  --color-success-foreground: var(--color-white);
+  --color-warning: var(--color-gray-500);
+  --color-warning-foreground: var(--color-white);
+  --color-destructive: var(--color-gray-400);
+  --color-destructive-foreground: var(--color-black);
+
+  --color-border: var(--color-gray-300); /* lighter borders for light theme */
+  --color-card: var(--color-gray-100); /* light card backgrounds */
+  --color-popover: var(--color-gray-100); /* light popover backgrounds */
+  --color-popover-foreground: var(--color-gray-900); /* dark text on light popover */
+
+  --color-tooltip: var(--color-gray-200);
+  --color-tooltip-foreground: var(--color-gray-900);
 }

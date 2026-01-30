@@ -235,10 +235,11 @@ To enable full functionality, configure your Firebase project credentials in `.e
 Calypso features a unique monochrome security theme designed for a professional, terminal-inspired look:
 
 **Color Palette**:
-- **Dark Mode** (default): Pure black background with gray/white text
-- **Light Mode**: White background with dark gray text
+- **Dark Mode** (default): Pure black background (`#000000`) with light gray text (`gray-100`)
+- **Light Mode**: Pure white background (`#FFFFFF`) with dark gray text (`gray-900`)
 - **Accent-Free**: No blue, green, red, or other accent colors - purely grayscale
 - **Monospace Font**: `ui-monospace, Menlo, Monaco, Consolas` throughout
+- **True Inverse**: Light theme is a complete inversion of dark theme colors
 
 **Design Elements**:
 - **UPPERCASE Labels**: All buttons and labels use uppercase for terminal feel
