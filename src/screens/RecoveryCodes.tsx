@@ -11,25 +11,30 @@ export function RecoveryCodes() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if not authenticated
-    if (!user) {
-      navigate('/login');
-      return;
-    }
+    const checkAndGenerateCodes = async () => {
+      // Redirect if not authenticated
+      if (!user) {
+        navigate('/login');
+        return;
+      }
 
-    // Check if codes already exist
-    if (RecoveryCodesService.hasRecoveryCodes(user.uid)) {
-      // Skip to dashboard if codes already generated
-      navigate('/dashboard');
-      return;
-    }
+      // Check if codes already exist (now async)
+      const codesExist = await RecoveryCodesService.hasRecoveryCodes(user.uid);
+      if (codesExist) {
+        // Skip to dashboard if codes already generated
+        navigate('/dashboard');
+        return;
+      }
 
-    // Generate recovery codes on mount
-    const generatedCodes = RecoveryCodesService.generateRecoveryCodes();
-    setCodes(generatedCodes);
-    
-    // Store hashed versions
-    RecoveryCodesService.storeRecoveryCodes(user.uid, generatedCodes);
+      // Generate recovery codes
+      const generatedCodes = RecoveryCodesService.generateRecoveryCodes();
+      setCodes(generatedCodes);
+      
+      // Store hashed versions in Firestore
+      await RecoveryCodesService.storeRecoveryCodes(user.uid, generatedCodes);
+    };
+
+    checkAndGenerateCodes();
   }, [user, navigate]);
 
   const handleDownload = () => {

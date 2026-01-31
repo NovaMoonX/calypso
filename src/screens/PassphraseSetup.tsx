@@ -144,9 +144,9 @@ export function PassphraseSetup() {
             type="submit"
             variant="primary"
             className="w-full"
-            disabled={loading}
+            loading={loading}
           >
-            {loading ? 'Setting Up...' : isReturningUser ? 'Unlock Vault' : 'Create Vault'}
+            {isReturningUser ? 'Unlock Vault' : 'Create Vault'}
           </Button>
         </form>
       </div>

@@ -1,7 +1,10 @@
+import { collection, doc, getDoc, setDoc, updateDoc, arrayRemove } from 'firebase/firestore';
+import { db } from '@lib/firebase/FirebaseConfig';
+
 /**
  * Recovery codes service for account recovery
- * Note: Recovery codes should be stored in Firestore with proper security rules
- * for production use. This implementation uses SHA-256 hashing.
+ * Uses Firestore for secure server-side storage with proper security rules
+ * and SHA-256 hashing for code protection.
  */
 
 export class RecoveryCodesService {
@@ -82,27 +85,28 @@ export class RecoveryCodesService {
   }
   
   /**
-   * Store recovery codes in localStorage (hashed)
-   * WARNING: For production, store in Firestore with security rules
+   * Store recovery codes in Firestore (hashed)
    */
   static async storeRecoveryCodes(userId: string, codes: string[]): Promise<void> {
     const hashedCodes = await Promise.all(
       codes.map(code => this.hashRecoveryCode(code))
     );
     
-    const storage = {
+    const recoveryCodesRef = doc(collection(db, 'recovery_codes'), userId);
+    
+    await setDoc(recoveryCodesRef, {
       codes: hashedCodes,
       createdAt: Date.now(),
-    };
-    
-    window.localStorage.setItem(`recovery_codes_${userId}`, JSON.stringify(storage));
+    });
   }
   
   /**
    * Check if recovery codes already exist for a user
    */
-  static hasRecoveryCodes(userId: string): boolean {
-    return window.localStorage.getItem(`recovery_codes_${userId}`) !== null;
+  static async hasRecoveryCodes(userId: string): Promise<boolean> {
+    const recoveryCodesRef = doc(collection(db, 'recovery_codes'), userId);
+    const snapshot = await getDoc(recoveryCodesRef);
+    return snapshot.exists();
   }
   
   /**
@@ -110,28 +114,32 @@ export class RecoveryCodesService {
    * Returns true if code is valid and successfully marked as used
    */
   static async validateAndConsumeRecoveryCode(userId: string, code: string): Promise<boolean> {
-    const stored = window.localStorage.getItem(`recovery_codes_${userId}`);
-    if (!stored) return false;
+    const recoveryCodesRef = doc(collection(db, 'recovery_codes'), userId);
     
     try {
-      const storage = JSON.parse(stored);
+      const snapshot = await getDoc(recoveryCodesRef);
+      if (!snapshot.exists()) return false;
+      
+      const data = snapshot.data();
+      const codes: string[] = data.codes || [];
       
       // Find matching code
-      let matchedIndex = -1;
-      for (let i = 0; i < storage.codes.length; i++) {
-        if (await this.verifyRecoveryCode(code, storage.codes[i])) {
-          matchedIndex = i;
+      let matchedHash: string | null = null;
+      for (const hash of codes) {
+        if (await this.verifyRecoveryCode(code, hash)) {
+          matchedHash = hash;
           break;
         }
       }
       
-      if (matchedIndex === -1) {
+      if (!matchedHash) {
         return false;
       }
       
-      // Remove the used code atomically
-      storage.codes.splice(matchedIndex, 1);
-      window.localStorage.setItem(`recovery_codes_${userId}`, JSON.stringify(storage));
+      // Remove the used code atomically using Firestore arrayRemove
+      await updateDoc(recoveryCodesRef, {
+        codes: arrayRemove(matchedHash),
+      });
       
       return true;
     } catch (error) {

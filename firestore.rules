@@ -19,6 +19,21 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
     
+    // Recovery codes - user can only access their own codes
+    match /recovery_codes/{userId} {
+      // Allow read if the user is accessing their own codes
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow create if the user is creating their own codes
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow update if the user is updating their own codes (for consuming codes)
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow delete if the user is deleting their own codes
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
     // Deny all other access
     match /{document=**} {
       allow read, write: if false;
