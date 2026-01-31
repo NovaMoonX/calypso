@@ -110,6 +110,11 @@ Calypso implements a comprehensive zero-knowledge encryption system where your d
    firebase deploy --only firestore:rules
    ```
 
+6. Deploy Firestore indexes:
+   ```bash
+   firebase deploy --only firestore:indexes
+   ```
+
 ### Development
 
 Start the development server:
@@ -220,6 +225,18 @@ If you forget your passphrase:
 2. Ensure Firebase Authentication is enabled in your Firebase console
 3. Deploy Firestore rules: `firebase deploy --only firestore:rules`
 4. Restart the dev server: `npm run dev`
+
+### "Error 409, index already exist" when deploying indexes
+**Cause**: The local indexes file is out of sync with Firebase
+**Solution**:
+1. Download the current indexes:
+   ```bash
+   firebase firestore:indexes > firestore.indexes.json
+   ```
+2. Redeploy indexes:
+   ```bash
+   firebase deploy --only firestore:indexes
+   ```
 
 ## Design & Visual Aesthetic
 
