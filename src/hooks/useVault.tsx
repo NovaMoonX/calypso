@@ -3,10 +3,10 @@ import { VaultItem } from '@lib/types/vault.types';
 
 export interface VaultContextType {
   items: VaultItem[];
-  currentFolderId: string | null;
+  currentFolderId: string | undefined;
   currentPath: string[];
   loading: boolean;
-  navigateToFolder: (folderId: string | null) => void;
+  navigateToFolder: (folderId: string | undefined) => void;
   navigateBack: () => void;
   createFolder: (name: string) => Promise<void>;
   createTextItem: (name: string, content: string) => Promise<void>;

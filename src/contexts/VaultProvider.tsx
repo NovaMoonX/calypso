@@ -24,7 +24,7 @@ interface VaultProviderProps {
 export function VaultProvider({ children }: VaultProviderProps) {
   const { user, masterKey } = useAuth();
   const [items, setItems] = useState<VaultItem[]>([]);
-  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
+  const [currentFolderId, setCurrentFolderId] = useState<string | undefined>(undefined);
   const [currentPath, setCurrentPath] = useState<string[]>(['Root']);
   const [loading, setLoading] = useState(false);
 
@@ -64,13 +64,13 @@ export function VaultProvider({ children }: VaultProviderProps) {
   }, [loadItems]);
 
   // Build current path
-  const buildPath = useCallback(async (folderId: string | null): Promise<string[]> => {
+  const buildPath = useCallback(async (folderId: string | undefined): Promise<string[]> => {
     if (!folderId || !user) {
       return ['Root'];
     }
 
     const path: string[] = [];
-    let currentId: string | null = folderId;
+    let currentId: string | undefined = folderId;
 
     while (currentId) {
       const itemDoc = await getDoc(doc(db, 'vault_items', currentId));
@@ -87,7 +87,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
     return path;
   }, [user]);
 
-  const navigateToFolder = useCallback(async (folderId: string | null) => {
+  const navigateToFolder = useCallback(async (folderId: string | undefined) => {
     setCurrentFolderId(folderId);
     const path = await buildPath(folderId);
     setCurrentPath(path);
