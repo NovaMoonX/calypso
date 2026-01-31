@@ -76,6 +76,12 @@ export function Dashboard() {
     }
   };
 
+  const resetUploadModal = () => {
+    setSelectedFile(null);
+    setCustomFileName('');
+    setShowUploadModal(false);
+  };
+
   const handleUpload = async () => {
     if (!selectedFile) return;
 
@@ -97,9 +103,7 @@ export function Dashboard() {
       }
       
       await uploadFile(selectedFile, fileName);
-      setSelectedFile(null);
-      setCustomFileName('');
-      setShowUploadModal(false);
+      resetUploadModal();
       addToast({ title: 'Success', description: 'File uploaded successfully' });
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -344,11 +348,7 @@ export function Dashboard() {
       {/* Upload File Modal */}
       <Modal
         isOpen={showUploadModal}
-        onClose={() => {
-          setShowUploadModal(false);
-          setSelectedFile(null);
-          setCustomFileName('');
-        }}
+        onClose={resetUploadModal}
         title="Upload File"
       >
         <div className="space-y-4">
@@ -414,11 +414,7 @@ export function Dashboard() {
           <div className="flex justify-end gap-2">
             <Button 
               variant="secondary" 
-              onClick={() => {
-                setShowUploadModal(false);
-                setSelectedFile(null);
-                setCustomFileName('');
-              }}
+              onClick={resetUploadModal}
             >
               Cancel
             </Button>
