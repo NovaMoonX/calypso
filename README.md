@@ -227,11 +227,11 @@ If you forget your passphrase:
 Calypso features a unique monochrome security theme designed for a professional, terminal-inspired look:
 
 **Color Palette**:
-- **Dark Mode** (default): Pure black background (`#000000`) with light gray text (`gray-100`)
-- **Light Mode**: Pure white background (`#FFFFFF`) with dark gray text (`gray-900`)
+- **Light Mode** (default): Pure white background (`#FFFFFF`) with dark gray text (`gray-900`)
+- **Dark Mode**: Pure black background (`#000000`) with light gray text (`gray-100`)
 - **Accent-Free**: No blue, green, red, or other accent colors - purely grayscale
 - **Monospace Font**: `ui-monospace, Menlo, Monaco, Consolas` throughout
-- **True Inverse**: Light theme is a complete inversion of dark theme colors
+- **True Inverse**: Dark theme is a complete inversion of light theme colors
 
 **Design Elements**:
 - **UPPERCASE Labels**: All buttons and labels use uppercase for terminal feel
@@ -249,8 +249,9 @@ Calypso features a unique monochrome security theme designed for a professional,
 
 ### Theme Toggle
 - Click the theme toggle button in the top-left corner
-- Switches between dark and light modes
+- Switches between light and dark modes
 - Preference saved in browser localStorage
+- **Default**: Light mode
 
 ## Firestore Security Rules
 

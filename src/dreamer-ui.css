@@ -1,35 +1,7 @@
 /** Necessary theme styles for Dreamer UI library - Monochrome Security Theme */
 
-/* Dark theme (default) */
+/* Light theme (default) */
 @theme dreamer-ui {
-  --color-primary: var(--color-gray-300);
-  --color-primary-foreground: var(--color-black);
-  --color-secondary: var(--color-gray-700);
-  --color-secondary-foreground: var(--color-gray-100);
-  --color-muted: var(--color-gray-800);
-  --color-muted-foreground: var(--color-gray-400);
-
-  --color-accent: var(--color-gray-400);
-  --color-accent-foreground: var(--color-black);
-
-  --color-success: var(--color-gray-400);
-  --color-success-foreground: var(--color-black);
-  --color-warning: var(--color-gray-500);
-  --color-warning-foreground: var(--color-black);
-  --color-destructive: var(--color-gray-600);
-  --color-destructive-foreground: var(--color-white);
-
-  --color-border: var(--color-gray-700); /* for input/textarea borders and dividers */
-  --color-card: var(--color-gray-900); /* for card backgrounds */
-  --color-popover: var(--color-gray-900); /* for popover backgrounds (popover, dropdowns, modals, etc) */
-  --color-popover-foreground: var(--color-gray-100); /* for popover text */
-
-  --color-tooltip: var(--color-gray-800);
-  --color-tooltip-foreground: var(--color-gray-100);
-}
-
-/* Light theme - inverse of dark theme, still minimalist monochrome */
-.light {
   --color-primary: var(--color-gray-700);
   --color-primary-foreground: var(--color-white);
   --color-secondary: var(--color-gray-300);
@@ -54,4 +26,32 @@
 
   --color-tooltip: var(--color-gray-200);
   --color-tooltip-foreground: var(--color-gray-900);
+}
+
+/* Dark theme - inverse of light theme, still minimalist monochrome */
+.dark {
+  --color-primary: var(--color-gray-300);
+  --color-primary-foreground: var(--color-black);
+  --color-secondary: var(--color-gray-700);
+  --color-secondary-foreground: var(--color-gray-100);
+  --color-muted: var(--color-gray-800);
+  --color-muted-foreground: var(--color-gray-400);
+
+  --color-accent: var(--color-gray-400);
+  --color-accent-foreground: var(--color-black);
+
+  --color-success: var(--color-gray-400);
+  --color-success-foreground: var(--color-black);
+  --color-warning: var(--color-gray-500);
+  --color-warning-foreground: var(--color-black);
+  --color-destructive: var(--color-gray-600);
+  --color-destructive-foreground: var(--color-white);
+
+  --color-border: var(--color-gray-700); /* for input/textarea borders and dividers */
+  --color-card: var(--color-gray-900); /* for card backgrounds */
+  --color-popover: var(--color-gray-900); /* for popover backgrounds (popover, dropdowns, modals, etc) */
+  --color-popover-foreground: var(--color-gray-100); /* for popover text */
+
+  --color-tooltip: var(--color-gray-800);
+  --color-tooltip-foreground: var(--color-gray-100);
 }

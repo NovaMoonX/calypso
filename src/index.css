@@ -8,17 +8,17 @@
 }
 
 @theme app {
-	--color-background: var(--color-black);
-	--color-foreground: var(--color-gray-100);
-	--color-card: var(--color-gray-950);
-	--font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-/* Light theme - inverse of dark theme */
-.light {
 	--color-background: var(--color-white);
 	--color-foreground: var(--color-gray-900);
 	--color-card: var(--color-gray-50);
+	--font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Dark theme - inverse of light theme */
+.dark {
+	--color-background: var(--color-black);
+	--color-foreground: var(--color-gray-100);
+	--color-card: var(--color-gray-950);
 }
 
 #root {
