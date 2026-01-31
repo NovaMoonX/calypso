@@ -69,9 +69,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setMasterKey(result.key);
     setSalt(result.salt);
 
-    // Store salt in Firestore if this is a new passphrase
+    // Store salt and verifier in Firestore if this is a new passphrase
     if (user && isNewPassphrase) {
-      await UserSettingsService.storeSalt(user.uid, result.salt);
+      // Create verifier for zero-knowledge passphrase validation
+      const verifier = await EncryptionService.createPassphraseVerifier(result.key);
+      await UserSettingsService.storePassphraseData(
+        user.uid, 
+        result.salt,
+        verifier.ciphertext,
+        verifier.iv
+      );
+    } else if (user && !isNewPassphrase) {
+      // Verify passphrase for returning users
+      const storedVerifier = await UserSettingsService.getVerifier(user.uid);
+      if (storedVerifier) {
+        const isValid = await EncryptionService.verifyPassphrase(storedVerifier, result.key);
+        if (!isValid) {
+          throw new Error('Invalid passphrase');
+        }
+      }
     }
   };
 

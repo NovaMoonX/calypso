@@ -49,13 +49,16 @@ Calypso implements a comprehensive zero-knowledge encryption system where your d
 
 1. **Master Key Derivation**: When you create your vault, a master key is derived from your passphrase using PBKDF2-SHA256 with 600,000 iterations (OWASP 2025 standard)
 2. **Salt Storage**: The cryptographic salt is securely stored in Firestore, allowing you to re-enter your passphrase on any device without recreating your vault
-3. **Data Encryption Keys (DEK)**: Each item (text/file) has a unique randomly generated 256-bit DEK
-4. **Key Wrapping**: DEKs are encrypted with the master key before storage in Firestore
-5. **Client-Side Only**: All encryption/decryption happens in your browser. Firebase only stores encrypted data
-6. **No Passphrase Storage**: Your passphrase is never stored or transmitted - it exists only in memory during your session
+3. **Passphrase Verifier**: A small encrypted verifier blob (containing known plaintext "calypso-passphrase-check") is created and stored in Firestore when you first set your passphrase
+4. **Zero-Knowledge Validation**: When you return, your passphrase is validated by deriving the key with the stored salt and attempting to decrypt the verifier - success means correct passphrase
+5. **Data Encryption Keys (DEK)**: Each item (text/file) has a unique randomly generated 256-bit DEK
+6. **Key Wrapping**: DEKs are encrypted with the master key before storage in Firestore
+7. **Client-Side Only**: All encryption/decryption happens in your browser. Firebase only stores encrypted data
+8. **No Passphrase Storage**: Your passphrase is never stored or transmitted - it exists only in memory during your session
 
 ### Security Features
 
+- **Passphrase Verifier**: Zero-knowledge passphrase validation using encrypted verifier blob
 - **Constant-Time Comparisons**: Recovery code validation uses timing-attack-resistant comparisons
 - **Rejection Sampling**: Cryptographically secure random code generation with uniform distribution
 - **Atomic Operations**: Recovery code validation and consumption happen atomically to prevent race conditions
@@ -64,6 +67,7 @@ Calypso implements a comprehensive zero-knowledge encryption system where your d
 - **Secure Session Management**: Master key held in memory only, cleared on sign-out
 - **Cloud Salt Storage**: Salt stored in Firestore with strict access control (user can only access their own)
 - **One-Time Passphrase Setup**: Set your passphrase once; returning users simply enter it to unlock their vault
+- **No Direct Passphrase Storage**: Passphrase correctness verified by decrypting a known verifier, not by comparing stored values
 
 ### Data Flow
 
@@ -162,7 +166,8 @@ firebase deploy
    - Choose a strong passphrase (minimum 12 characters)
    - **IMPORTANT**: Remember this passphrase - it cannot be recovered
    - Confirm your passphrase
-   - Your encryption salt is automatically stored in Firestore for future access
+   - Your encryption salt and passphrase verifier are automatically stored in Firestore
+   - The verifier enables passphrase validation without storing the passphrase itself
    
 4. **Save Recovery Codes** (New Users Only):
    - 10 unique recovery codes will be generated
@@ -173,9 +178,11 @@ firebase deploy
 ### Daily Usage (Returning Users)
 
 1. **Sign In**: Enter your email to receive a sign-in link
-2. **Unlock Vault**: Enter your passphrase to decrypt your vault (same passphrase you created)
+2. **Unlock Vault**: Enter your passphrase to decrypt your vault
    - Your encryption salt is automatically retrieved from Firestore
-   - No need to recreate your passphrase
+   - The system derives the key and validates it against the stored verifier
+   - If validation fails, you'll see an "Incorrect passphrase" error
+   - No need to recreate your passphrase - same one works forever
 3. **Manage Items**:
    - **Create Folders**: Click "NEW FOLDER" to organize your data
    - **Add Text Notes**: Click "NEW TEXT" for encrypted text storage
@@ -352,9 +359,11 @@ interface VaultItem {
 
 ### Storage Structure
 
-- **Firestore**: Stores metadata, encrypted DEKs, and encrypted text content
+- **Firestore**: 
+  - `vault_items`: Stores metadata, encrypted DEKs, and encrypted text content
+  - `recovery_codes`: Stores hashed recovery codes
+  - `user_settings`: Stores salt and passphrase verifier for each user
 - **Firebase Storage**: Stores encrypted file binaries at paths like `encrypted_files/{ownerId}/{itemId}`
-- **localStorage**: Stores salt (per user), recovery code hashes (per user)
 
 ## Project Structure
 
@@ -381,8 +390,9 @@ src/
 │   ├── RecoveryCodes.tsx
 │   └── Dashboard.tsx
 ├── services/           # Business logic
-│   ├── EncryptionService.ts    # AES-256-GCM encryption
-│   └── RecoveryCodesService.ts # Recovery code management
+│   ├── EncryptionService.ts       # AES-256-GCM encryption with verifier support
+│   ├── RecoveryCodesService.ts    # Recovery code management
+│   └── UserSettingsService.ts     # User settings (salt, verifier) management
 ├── routes/             # Router configuration
 └── ui/                 # Layout components
 ```

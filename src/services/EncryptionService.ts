@@ -284,4 +284,27 @@ export class EncryptionService {
       ['encrypt', 'decrypt']
     );
   }
+
+  /**
+   * Create passphrase verifier for zero-knowledge validation
+   * Encrypts a known plaintext with the master key for later verification
+   */
+  static async createPassphraseVerifier(masterKey: CryptoKey): Promise<EncryptedData> {
+    const verifierPlaintext = 'calypso-passphrase-check';
+    return await this.encryptData(verifierPlaintext, masterKey);
+  }
+
+  /**
+   * Verify passphrase by attempting to decrypt the verifier
+   * Returns true if passphrase is correct, false otherwise
+   */
+  static async verifyPassphrase(verifier: EncryptedData, masterKey: CryptoKey): Promise<boolean> {
+    try {
+      const decrypted = await this.decryptDataAsString(verifier, masterKey);
+      return decrypted === 'calypso-passphrase-check';
+    } catch (error) {
+      // Decryption failed - incorrect passphrase
+      return false;
+    }
+  }
 }

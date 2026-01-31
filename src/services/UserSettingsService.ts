@@ -4,6 +4,8 @@ import { db } from '@lib/firebase/FirebaseConfig';
 interface UserSettings {
   salt?: string; // Base64 encoded salt
   hasPassphrase: boolean;
+  verifierCiphertext?: string; // Base64 encoded encrypted verifier
+  verifierIv?: string; // Base64 encoded IV for verifier
   createdAt: number;
   updatedAt: number;
 }
@@ -29,9 +31,14 @@ export class UserSettingsService {
   }
 
   /**
-   * Store salt in Firestore when user creates passphrase
+   * Store salt and verifier in Firestore when user creates passphrase
    */
-  static async storeSalt(userId: string, salt: Uint8Array): Promise<void> {
+  static async storePassphraseData(
+    userId: string, 
+    salt: Uint8Array, 
+    verifierCiphertext: string,
+    verifierIv: string
+  ): Promise<void> {
     try {
       const saltBase64 = btoa(String.fromCharCode(...Array.from(salt)));
       const docRef = doc(db, 'user_settings', userId);
@@ -39,14 +46,37 @@ export class UserSettingsService {
       const settings: UserSettings = {
         salt: saltBase64,
         hasPassphrase: true,
+        verifierCiphertext,
+        verifierIv,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };
       
       await setDoc(docRef, settings);
     } catch (error) {
-      console.error('Error storing salt:', error);
+      console.error('Error storing passphrase data:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Get passphrase verifier from Firestore
+   */
+  static async getVerifier(userId: string): Promise<{ ciphertext: string; iv: string } | null> {
+    try {
+      const settings = await this.getUserSettings(userId);
+      
+      if (settings?.verifierCiphertext && settings?.verifierIv) {
+        return {
+          ciphertext: settings.verifierCiphertext,
+          iv: settings.verifierIv,
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting verifier:', error);
+      return null;
     }
   }
 
