@@ -16,6 +16,7 @@ import { VaultContext } from '@hooks/useVault';
 import { useAuth } from '@hooks/useAuth';
 import { VaultItem, CreateVaultItemInput } from '@lib/types/vault.types';
 import { EncryptionService } from '@/services/EncryptionService';
+import { detectFileType } from '@lib/utils/fileTypeDetector';
 
 interface VaultProviderProps {
   children: ReactNode;
@@ -161,7 +162,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
     await loadItems();
   };
 
-  const uploadFile = async (file: File, type: 'image' | 'video' | 'file') => {
+  const uploadFile = async (file: File, customFileName?: string) => {
     if (!user || !masterKey) {
       throw new Error('User not authenticated or master key not set');
     }
@@ -171,6 +172,12 @@ export function VaultProvider({ children }: VaultProviderProps) {
     if (file.size > MAX_FILE_SIZE) {
       throw new Error('File size exceeds 50MB limit');
     }
+
+    // Auto-detect file type from MIME type
+    const type = detectFileType(file.type);
+    
+    // Use custom file name if provided, otherwise use original file name
+    const fileName = customFileName || file.name;
 
     // Read file as ArrayBuffer
     const fileBuffer = await file.arrayBuffer();
@@ -185,7 +192,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
     );
 
     // Upload to Firebase Storage
-    const storagePath = `vault/${user.uid}/${Date.now()}_${file.name}`;
+    const storagePath = `vault/${user.uid}/${Date.now()}_${fileName}`;
     const storageRef = ref(storage, storagePath);
     await uploadBytes(storageRef, encryptedBlob);
 
@@ -194,7 +201,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
       parentId: currentFolderId ?? null,
       type,
       metadata: {
-        name: file.name,
+        name: fileName,
         size: file.size,
         mimeType: file.type,
         createdAt: Date.now(),

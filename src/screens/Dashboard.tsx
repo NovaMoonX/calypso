@@ -12,6 +12,7 @@ import { VaultItem } from '@lib/types/vault.types';
 import { Plus, ChevronLeft, Trash } from '@moondreamsdev/dreamer-ui/symbols';
 import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@components/Icons';
 import { CalypsoLogoWithText } from '@components/Logo';
+import { detectFileType, getFileTypeLabel, getAcceptAttribute } from '@lib/utils/fileTypeDetector';
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
@@ -36,7 +37,7 @@ export function Dashboard() {
   const [newTextName, setNewTextName] = useState('');
   const [newTextContent, setNewTextContent] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadType, setUploadType] = useState<'image' | 'video' | 'file'>('file');
+  const [customFileName, setCustomFileName] = useState('');
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
@@ -79,8 +80,12 @@ export function Dashboard() {
     if (!selectedFile) return;
 
     try {
-      await uploadFile(selectedFile, uploadType);
+      // Use custom file name if provided, otherwise use original file name
+      const fileName = customFileName.trim() || selectedFile.name;
+      
+      await uploadFile(selectedFile, fileName);
       setSelectedFile(null);
+      setCustomFileName('');
       setShowUploadModal(false);
       addToast({ title: 'Success', description: 'File uploaded successfully' });
     } catch (error) {
@@ -326,32 +331,24 @@ export function Dashboard() {
       {/* Upload File Modal */}
       <Modal
         isOpen={showUploadModal}
-        onClose={() => setShowUploadModal(false)}
+        onClose={() => {
+          setShowUploadModal(false);
+          setSelectedFile(null);
+          setCustomFileName('');
+        }}
         title="Upload File"
       >
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">File Type</label>
-            <select
-              value={uploadType}
-              onChange={(e) => setUploadType(e.target.value as 'image' | 'video' | 'file')}
-              className={join(
-                'w-full px-3 py-2 rounded-md',
-                'bg-background border border-border',
-                'text-foreground',
-                'focus:outline-none focus:ring-2 focus:ring-primary'
-              )}
-            >
-              <option value="image">Image</option>
-              <option value="video">Video</option>
-              <option value="file">File</option>
-            </select>
-          </div>
-          <div className="space-y-2">
             <label className="text-sm font-medium">Select File</label>
             <input
               type="file"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              accept={getAcceptAttribute()}
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setSelectedFile(file);
+                setCustomFileName('');
+              }}
               className={join(
                 'w-full px-3 py-2 rounded-md',
                 'bg-background border border-border',
@@ -363,14 +360,53 @@ export function Dashboard() {
                 'file:cursor-pointer'
               )}
             />
-            {selectedFile && (
-              <p className="text-xs text-foreground/70">
-                Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
-              </p>
-            )}
           </div>
+          
+          {selectedFile && (
+            <>
+              <div className="space-y-2 p-3 bg-background/50 rounded-md border border-border">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-foreground/70">FILE INFO</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-mono">
+                    <span className="text-foreground/70">Name: </span>
+                    <span className="text-foreground">{selectedFile.name}</span>
+                  </p>
+                  <p className="text-sm font-mono">
+                    <span className="text-foreground/70">Type: </span>
+                    <span className="text-foreground">{getFileTypeLabel(detectFileType(selectedFile.type))}</span>
+                  </p>
+                  <p className="text-sm font-mono">
+                    <span className="text-foreground/70">Size: </span>
+                    <span className="text-foreground">{formatFileSize(selectedFile.size)}</span>
+                  </p>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Custom Name (Optional)</label>
+                <Input
+                  value={customFileName}
+                  onChange={(e) => setCustomFileName(e.target.value)}
+                  placeholder={`Leave empty to use: ${selectedFile.name}`}
+                />
+                <p className="text-xs text-foreground/50">
+                  Rename the file before uploading, or leave empty to keep original name
+                </p>
+              </div>
+            </>
+          )}
+          
           <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setShowUploadModal(false)}>
+            <Button 
+              variant="secondary" 
+              onClick={() => {
+                setShowUploadModal(false);
+                setSelectedFile(null);
+                setCustomFileName('');
+              }}
+            >
               Cancel
             </Button>
             <Button variant="primary" onClick={handleUpload} disabled={!selectedFile}>
