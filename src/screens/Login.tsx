@@ -1,9 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
 import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { useAuth } from '@hooks/useAuth';
 import { CalypsoLogo } from '@components/Logo';
+import {
+  markAsOriginalTab,
+  listenForAuthVerified,
+} from '@utils/tabCommunication';
+import { useNavigate } from 'react-router-dom';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +16,19 @@ export function Login() {
   const [sent, setSent] = useState(false);
   const { sendSignInLink } = useAuth();
   const { addToast } = useToast();
+  const navigate = useNavigate();
+
+  // Mark this tab as the original tab and listen for auth verification
+  useEffect(() => {
+    markAsOriginalTab();
+
+    const cleanup = listenForAuthVerified((redirectTo) => {
+      // Navigate to the specified route when auth is verified in another tab
+      navigate(redirectTo);
+    });
+
+    return cleanup;
+  }, [navigate]);
 
   const handleSendLink = async (e: React.FormEvent) => {
     e.preventDefault();

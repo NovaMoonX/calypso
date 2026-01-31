@@ -8,6 +8,11 @@ import { CalypsoLogo } from '@components/Logo';
 import { isSignInWithEmailLink } from 'firebase/auth';
 import { auth } from '@lib/firebase/FirebaseConfig';
 import { FirebaseError } from 'firebase/app';
+import {
+  isOriginalTab,
+  notifyAuthVerified,
+  closeCurrentTab,
+} from '@utils/tabCommunication';
 
 export function AuthVerify() {
   const [loading, setLoading] = useState(true);
@@ -26,9 +31,32 @@ export function AuthVerify() {
         // Wait a moment for auth state to update
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        // Navigate to passphrase - the PassphraseSetup component
-        // will determine if user is new or returning
-        navigate('/auth/passphrase');
+        const redirectPath = '/auth/passphrase';
+
+        // Check if this is the original tab (user clicked link in same tab)
+        // or a new tab (user clicked link from email in a different tab)
+        if (isOriginalTab()) {
+          // This is the original tab - just navigate normally
+          navigate(redirectPath);
+        } else {
+          // This is a new tab opened from the email link
+          // Notify the original tab to navigate
+          notifyAuthVerified(redirectPath);
+
+          // Wait a moment for the message to be sent
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          // Try to close this tab
+          const closed = closeCurrentTab();
+
+          // If we can't close the tab (e.g., browser security restrictions),
+          // show a message and navigate anyway
+          if (!closed) {
+            // Wait a bit longer to ensure original tab has received the message
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            navigate(redirectPath);
+          }
+        }
       } catch (error: unknown) {
         const firebaseError = error as FirebaseError;
         console.error('Error verifying email:', firebaseError);
