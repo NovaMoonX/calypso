@@ -404,9 +404,19 @@ export function Dashboard() {
                   onChange={(e) => setCustomFileName(e.target.value)}
                   placeholder="Enter custom name (extension will be preserved)"
                 />
-                <p className="text-xs text-foreground/50">
-                  Leave empty to keep original name. File extension will be automatically preserved.
-                </p>
+                {customFileName.trim() ? (
+                  <p className="text-xs text-foreground/50">
+                    Will be saved as: <span className="font-medium text-foreground">{customFileName.trim()}{(() => {
+                      const extensionMatch = selectedFile.name.match(/\.[^.]+$/);
+                      const extension = extensionMatch ? extensionMatch[0] : '';
+                      return !customFileName.trim().endsWith(extension) ? extension : '';
+                    })()}</span>
+                  </p>
+                ) : (
+                  <p className="text-xs text-foreground/50">
+                    Leave empty to keep original name. File extension will be automatically preserved.
+                  </p>
+                )}
               </div>
             </>
           )}

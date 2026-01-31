@@ -54,6 +54,9 @@ export const ALLOWED_FILE_TYPES = {
   'video/ogg': ['.ogv'],
   'video/quicktime': ['.mov'],
   
+  // Audio
+  'audio/mpeg': ['.mp3'],
+  
   // Documents
   'application/pdf': ['.pdf'],
   'text/plain': ['.txt'],
