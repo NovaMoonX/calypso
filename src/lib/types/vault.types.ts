@@ -15,7 +15,7 @@ export interface VaultItemMetadata {
 export interface VaultItem {
   id: string;
   ownerId: string;
-  parentId?: string; // undefined for root items
+  parentId: string | null; // null for root items
   type: VaultItemType;
   metadata: VaultItemMetadata;
   
@@ -32,7 +32,7 @@ export interface VaultItem {
 }
 
 export interface CreateVaultItemInput {
-  parentId?: string;
+  parentId: string | null;
   type: VaultItemType;
   metadata: VaultItemMetadata;
   encryptedData?: string;

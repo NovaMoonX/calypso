@@ -79,7 +79,7 @@ export function RecoveryCodes() {
         <div className="space-y-4">
           <div className="rounded-lg border border-warning/20 bg-warning/10 p-4 text-sm font-mono">
             <strong className="block mb-2" aria-label="Critical warning">⚠️ CRITICAL:</strong>
-            <ul className="list-disc list-inside space-y-1 text-warning-foreground/80">
+            <ul className="list-disc list-inside space-y-1 opacity-80">
               <li>Each code can only be used once</li>
               <li>Store them in a secure location (password manager, safe, etc.)</li>
               <li>Download now - you won't see them again</li>

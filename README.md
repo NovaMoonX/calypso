@@ -302,7 +302,7 @@ Each item in Firestore follows this schema:
 interface VaultItem {
   id: string;                    // Firestore document ID
   ownerId: string;               // Firebase Auth UID (immutable after creation)
-  parentId?: string;             // Parent folder ID (undefined = root level)
+   parentId: string | null;       // Parent folder ID (null = root level)
   type: 'folder' | 'text' | 'image' | 'video' | 'file';
   
   metadata: {

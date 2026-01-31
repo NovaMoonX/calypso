@@ -24,7 +24,7 @@ interface VaultProviderProps {
 export function VaultProvider({ children }: VaultProviderProps) {
   const { user, masterKey } = useAuth();
   const [items, setItems] = useState<VaultItem[]>([]);
-  const [currentFolderId, setCurrentFolderId] = useState<string | undefined>(undefined);
+  const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [currentPath, setCurrentPath] = useState<string[]>(['Root']);
   const [loading, setLoading] = useState(false);
 
@@ -37,10 +37,11 @@ export function VaultProvider({ children }: VaultProviderProps) {
 
     setLoading(true);
     try {
+      const parentFilter = currentFolderId ?? null;
       const itemsQuery = query(
         collection(db, 'vault_items'),
         where('ownerId', '==', user.uid),
-        where('parentId', '==', currentFolderId),
+        where('parentId', '==', parentFilter),
         orderBy('metadata.createdAt', 'desc')
       );
 
@@ -64,13 +65,13 @@ export function VaultProvider({ children }: VaultProviderProps) {
   }, [loadItems]);
 
   // Build current path
-  const buildPath = useCallback(async (folderId: string | undefined): Promise<string[]> => {
+  const buildPath = useCallback(async (folderId: string | null): Promise<string[]> => {
     if (!folderId || !user) {
       return ['Root'];
     }
 
     const path: string[] = [];
-    let currentId: string | undefined = folderId;
+    let currentId: string | null = folderId;
 
     while (currentId) {
       const itemDoc = await getDoc(doc(db, 'vault_items', currentId));
@@ -87,7 +88,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
     return path;
   }, [user]);
 
-  const navigateToFolder = useCallback(async (folderId: string | undefined) => {
+  const navigateToFolder = useCallback(async (folderId: string | null) => {
     setCurrentFolderId(folderId);
     const path = await buildPath(folderId);
     setCurrentPath(path);
@@ -112,7 +113,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
     }
 
     const newFolder: CreateVaultItemInput = {
-      parentId: currentFolderId,
+      parentId: currentFolderId ?? null,
       type: 'folder',
       metadata: {
         name,
@@ -138,7 +139,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
     const encrypted = await EncryptionService.encryptItem(content, masterKey);
 
     const newItem: CreateVaultItemInput = {
-      parentId: currentFolderId,
+      parentId: currentFolderId ?? null,
       type: 'text',
       metadata: {
         name,
@@ -190,7 +191,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
 
     // Create vault item
     const newItem: CreateVaultItemInput = {
-      parentId: currentFolderId,
+      parentId: currentFolderId ?? null,
       type,
       metadata: {
         name: file.name,
