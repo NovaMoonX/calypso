@@ -24,6 +24,9 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 ### Data Management
 - 📁 **Nested Folders**: Organize your encrypted data with unlimited folder hierarchy
 - 📝 **Multiple File Types**: Store text, images, videos, and files (50MB max per file)
+- 🔍 **Auto-Detection**: File types automatically detected from MIME type during upload
+- ✏️ **File Renaming**: Rename files before uploading to the vault
+- 🛡️ **Type Restrictions**: Only allowed file types can be uploaded (images, videos, PDFs, documents, archives)
 - 🗂️ **Smart Navigation**: Back button with breadcrumb path display
 
 ### User Interface
@@ -193,11 +196,32 @@ firebase deploy
    - **Create Folders**: Click "NEW FOLDER" to organize your data
    - **Add Text Notes**: Click "NEW TEXT" for encrypted text storage
    - **Upload Files**: Click "UPLOAD FILE" for images, videos, or documents
+     - Select a file from your device (restricted to images, videos, PDFs, documents, and archives)
+     - File type is automatically detected from the file's MIME type
+     - View file information (name, type, size) after selection
+     - Optionally rename the file before uploading
+     - Maximum file size: 50MB
    - **Navigate**: Click folders to open them, use "← BACK" to go up
    - **Delete**: Hover over items and click the trash icon
 4. **Sign Out**: Click "SIGN OUT" when done (redirects to login)
    - Your passphrase and master key are cleared from memory
    - Your salt remains in Firestore for next time
+
+### Supported File Types
+
+The vault supports uploading the following file types:
+
+**Images**: JPEG (.jpg, .jpeg), PNG (.png), GIF (.gif), WebP (.webp), SVG (.svg)
+
+**Videos**: MP4 (.mp4), WebM (.webm), OGG (.ogv), QuickTime (.mov)
+
+**Documents**: PDF (.pdf), Plain Text (.txt), Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)
+
+**Archives**: ZIP (.zip), RAR (.rar), 7-Zip (.7z)
+
+**Other**: JSON (.json), CSV (.csv)
+
+File types are automatically detected based on the file's MIME type when you upload. You can also rename files during the upload process.
 
 ### Recovery
 
