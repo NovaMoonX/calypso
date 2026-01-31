@@ -2,6 +2,8 @@
  * Calypso Logo - Secure, minimalist "C" design
  */
 
+import { join } from '@moondreamsdev/dreamer-ui/utils';
+
 interface LogoProps {
   className?: string;
   size?: number;
@@ -47,7 +49,7 @@ export function CalypsoLogo({ className = '', size = 48 }: LogoProps) {
 
 export function CalypsoLogoWithText({ className = '', size = 32 }: LogoProps) {
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
+    <div className={join('flex items-center gap-3', className)}>
       <CalypsoLogo size={size} />
       <span className="text-xl font-mono tracking-wider">CALYPSO</span>
     </div>
