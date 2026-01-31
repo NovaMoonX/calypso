@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
@@ -13,6 +13,20 @@ export function AuthVerify() {
   const [emailInput, setEmailInput] = useState('');
   const { signInWithEmailLink } = useAuth();
   const navigate = useNavigate();
+
+    const verifyEmail = useCallback(async (email: string) => {
+    setLoading(true);
+    try {
+      await signInWithEmailLink(email);
+      
+      // Redirect to passphrase setup
+      navigate('/auth/passphrase');
+    } catch (err) {
+      console.error('Error verifying email:', err);
+      setError('Failed to verify email. The link may be invalid or expired.');
+      setLoading(false);
+    }
+  }, [signInWithEmailLink, navigate]);
 
   useEffect(() => {
     const checkEmail = async () => {
@@ -29,21 +43,7 @@ export function AuthVerify() {
     };
 
     checkEmail();
-  }, []);
-
-  const verifyEmail = async (email: string) => {
-    setLoading(true);
-    try {
-      await signInWithEmailLink(email);
-      
-      // Redirect to passphrase setup
-      navigate('/auth/passphrase');
-    } catch (err) {
-      console.error('Error verifying email:', err);
-      setError('Failed to verify email. The link may be invalid or expired.');
-      setLoading(false);
-    }
-  };
+  }, [verifyEmail]);
 
   const handleEmailSubmit = async () => {
     if (!emailInput.trim()) {

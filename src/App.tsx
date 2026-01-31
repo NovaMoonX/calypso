@@ -8,7 +8,7 @@ import { VaultProvider } from '@contexts/VaultProvider';
 function App() {
   return (
     <ErrorBoundary>
-      <DreamerUIProvider>
+      <DreamerUIProvider theme={{ defaultTheme: 'dark'}}>
         <AuthProvider>
           <VaultProvider>
             <RouterProvider router={router} />
