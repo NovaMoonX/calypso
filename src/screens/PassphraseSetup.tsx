@@ -4,22 +4,28 @@ import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
 import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { useAuth } from '@hooks/useAuth';
+import { UserSettingsService } from '@/services/UserSettingsService';
 
 export function PassphraseSetup() {
   const [passphrase, setPassphrase] = useState('');
   const [confirmPassphrase, setConfirmPassphrase] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Start as loading to check user status
   const [isReturningUser, setIsReturningUser] = useState(false);
   const { user, setMasterKeyFromPassphrase } = useAuth();
   const { addToast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user has a stored salt (returning user)
-    if (user) {
-      const storedSalt = window.localStorage.getItem(`salt_${user.uid}`);
-      setIsReturningUser(!!storedSalt);
-    }
+    // Check if user has a stored salt in Firestore (returning user)
+    const checkUserStatus = async () => {
+      if (user) {
+        const hasPassphrase = await UserSettingsService.hasPassphrase(user.uid);
+        setIsReturningUser(hasPassphrase);
+      }
+      setLoading(false);
+    };
+    
+    checkUserStatus();
   }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,31 +51,15 @@ export function PassphraseSetup() {
 
     setLoading(true);
     try {
-      // Get stored salt if returning user
+      // Get stored salt from Firestore if returning user
       let salt: Uint8Array | undefined;
       if (user && isReturningUser) {
-        const storedSalt = window.localStorage.getItem(`salt_${user.uid}`);
-        if (storedSalt) {
-          try {
-            const saltBinary = atob(storedSalt);
-            salt = new Uint8Array(saltBinary.length);
-            for (let i = 0; i < saltBinary.length; i++) {
-              salt[i] = saltBinary.charCodeAt(i);
-            }
-          } catch (err) {
-            console.error('Error parsing salt:', err);
-            addToast({ 
-              title: 'Error', 
-              description: 'Invalid stored encryption data. Please contact support.', 
-              type: 'error' 
-            });
-            setLoading(false);
-            return;
-          }
-        }
+        salt = await UserSettingsService.getSalt(user.uid) || undefined;
       }
 
-      await setMasterKeyFromPassphrase(passphrase, salt);
+      // Set master key from passphrase
+      // Pass isNewPassphrase flag to store salt in Firestore for new users
+      await setMasterKeyFromPassphrase(passphrase, salt, !isReturningUser);
       
       // Redirect to recovery codes for new users, dashboard for returning users
       if (isReturningUser) {
@@ -81,7 +71,9 @@ export function PassphraseSetup() {
       console.error('Error setting master key:', error);
       addToast({ 
         title: 'Error', 
-        description: 'Failed to set up encryption. Please check your passphrase and try again.', 
+        description: isReturningUser 
+          ? 'Incorrect passphrase. Please try again.' 
+          : 'Failed to set up encryption. Please try again.', 
         type: 'error' 
       });
     } finally {

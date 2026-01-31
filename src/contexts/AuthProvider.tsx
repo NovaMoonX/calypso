@@ -10,6 +10,7 @@ import {
 import { auth } from '@lib/firebase/FirebaseConfig';
 import { AuthContext } from '@hooks/useAuth';
 import { EncryptionService } from '@/services/EncryptionService';
+import { UserSettingsService } from '@/services/UserSettingsService';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -22,14 +23,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [salt, setSalt] = useState<Uint8Array | null>(null);
 
   // Shared reset logic for clearing user session data
-  const resetSessionData = (userId: string | null) => {
+  const resetSessionData = () => {
     setMasterKey(null);
     setSalt(null);
-    
-    // Clear stored data
-    if (userId) {
-      window.localStorage.removeItem(`salt_${userId}`);
-    }
+    // Note: We don't remove salt from Firestore or localStorage on sign out
+    // This allows returning users to use their existing passphrase
   };
 
   useEffect(() => {
@@ -39,12 +37,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Reset session data when user signs out
       if (!currentUser) {
-        resetSessionData(user?.uid || null);
+        resetSessionData();
       }
     });
 
     return unsubscribe;
-  }, [user?.uid]);
+  }, []);
 
   const sendSignInLink = async (email: string) => {
     const actionCodeSettings = {
@@ -65,23 +63,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const setMasterKeyFromPassphrase = async (passphrase: string, providedSalt?: Uint8Array) => {
+  const setMasterKeyFromPassphrase = async (passphrase: string, providedSalt?: Uint8Array, isNewPassphrase: boolean = false) => {
     const result = await EncryptionService.deriveMasterKey(passphrase, providedSalt);
     
     setMasterKey(result.key);
     setSalt(result.salt);
 
-    // Store salt in localStorage for this user session
-    if (user) {
-      const saltBase64 = btoa(String.fromCharCode(...Array.from(result.salt)));
-      window.localStorage.setItem(`salt_${user.uid}`, saltBase64);
+    // Store salt in Firestore if this is a new passphrase
+    if (user && isNewPassphrase) {
+      await UserSettingsService.storeSalt(user.uid, result.salt);
     }
   };
 
   const signOut = async () => {
-    const userId = user?.uid || null;
     await firebaseSignOut(auth);
-    resetSessionData(userId);
+    resetSessionData();
     
     // Redirect to login page
     window.location.href = '/login';

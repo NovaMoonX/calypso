@@ -34,6 +34,21 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == userId;
     }
     
+    // User settings - stores salt and other user-specific data
+    match /user_settings/{userId} {
+      // Allow read if the user is accessing their own settings
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow create if the user is creating their own settings
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow update if the user is updating their own settings
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow delete if the user is deleting their own settings
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
     // Deny all other access
     match /{document=**} {
       allow read, write: if false;

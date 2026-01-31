@@ -8,15 +8,18 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 - 🔐 **Zero-Knowledge Encryption**: All data is encrypted on the client-side before being sent to Firebase
 - 🔑 **AES-256-GCM Encryption**: Military-grade encryption using Web Crypto API
 - 🔒 **PBKDF2 Key Derivation**: 600,000 iterations (OWASP 2025 standard)
-- 🎫 **Recovery Codes**: 10 single-use recovery codes for account recovery
+- 🎫 **Recovery Codes**: 10 single-use recovery codes stored in Firestore with SHA-256 hashing
 - 🛡️ **Timing Attack Protection**: Constant-time comparisons for security-critical operations
 - 📦 **Per-Item Encryption**: Each item has a unique Data Encryption Key (DEK)
+- ☁️ **Cloud Salt Storage**: Encryption salt stored securely in Firestore for seamless re-authentication
 
 ### Authentication & Access
 - 📧 **Passwordless Authentication**: Firebase Email Link authentication
 - ✉️ **Smart Email Hints**: Spam folder reminder for better user experience
 - 🔐 **Passphrase Protection**: Minimum 12-character passphrase requirement
+- 🔄 **Persistent Authentication**: Salt stored in Firestore allows seamless return without passphrase recreation
 - 🚪 **Auto Sign-Out Redirect**: Secure redirect to login on sign-out
+- 🛡️ **Protected Routes**: Authentication guards prevent unauthorized page access
 
 ### Data Management
 - 📁 **Nested Folders**: Organize your encrypted data with unlimited folder hierarchy
@@ -45,10 +48,11 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 Calypso implements a comprehensive zero-knowledge encryption system where your data is completely private:
 
 1. **Master Key Derivation**: When you create your vault, a master key is derived from your passphrase using PBKDF2-SHA256 with 600,000 iterations (OWASP 2025 standard)
-2. **Data Encryption Keys (DEK)**: Each item (text/file) has a unique randomly generated 256-bit DEK
-3. **Key Wrapping**: DEKs are encrypted with the master key before storage in Firestore
-4. **Client-Side Only**: All encryption/decryption happens in your browser. Firebase only stores encrypted data
-5. **No Passphrase Storage**: Your passphrase is never stored or transmitted - it exists only in memory during your session
+2. **Salt Storage**: The cryptographic salt is securely stored in Firestore, allowing you to re-enter your passphrase on any device without recreating your vault
+3. **Data Encryption Keys (DEK)**: Each item (text/file) has a unique randomly generated 256-bit DEK
+4. **Key Wrapping**: DEKs are encrypted with the master key before storage in Firestore
+5. **Client-Side Only**: All encryption/decryption happens in your browser. Firebase only stores encrypted data
+6. **No Passphrase Storage**: Your passphrase is never stored or transmitted - it exists only in memory during your session
 
 ### Security Features
 
@@ -56,8 +60,10 @@ Calypso implements a comprehensive zero-knowledge encryption system where your d
 - **Rejection Sampling**: Cryptographically secure random code generation with uniform distribution
 - **Atomic Operations**: Recovery code validation and consumption happen atomically to prevent race conditions
 - **Owner Verification**: Firestore security rules prevent ownerId modification and enforce strict access control
-- **SHA-256 Hashing**: Recovery codes are hashed before storage
+- **SHA-256 Hashing**: Recovery codes are hashed before storage in Firestore
 - **Secure Session Management**: Master key held in memory only, cleared on sign-out
+- **Cloud Salt Storage**: Salt stored in Firestore with strict access control (user can only access their own)
+- **One-Time Passphrase Setup**: Set your passphrase once; returning users simply enter it to unlock their vault
 
 ### Data Flow
 
@@ -152,21 +158,24 @@ firebase deploy
    - Click the link in your email
    - If needed, confirm your email in the modal dialog
    
-3. **Create Passphrase**:
+3. **Create Passphrase** (New Users Only):
    - Choose a strong passphrase (minimum 12 characters)
    - **IMPORTANT**: Remember this passphrase - it cannot be recovered
    - Confirm your passphrase
+   - Your encryption salt is automatically stored in Firestore for future access
    
-4. **Save Recovery Codes**:
+4. **Save Recovery Codes** (New Users Only):
    - 10 unique recovery codes will be generated
    - Download them immediately (you won't see them again)
    - Store them securely (password manager, safe, etc.)
    - Each code can only be used once
 
-### Daily Usage
+### Daily Usage (Returning Users)
 
 1. **Sign In**: Enter your email to receive a sign-in link
-2. **Unlock Vault**: Enter your passphrase to decrypt your vault
+2. **Unlock Vault**: Enter your passphrase to decrypt your vault (same passphrase you created)
+   - Your encryption salt is automatically retrieved from Firestore
+   - No need to recreate your passphrase
 3. **Manage Items**:
    - **Create Folders**: Click "NEW FOLDER" to organize your data
    - **Add Text Notes**: Click "NEW TEXT" for encrypted text storage
@@ -174,6 +183,8 @@ firebase deploy
    - **Navigate**: Click folders to open them, use "← BACK" to go up
    - **Delete**: Hover over items and click the trash icon
 4. **Sign Out**: Click "SIGN OUT" when done (redirects to login)
+   - Your passphrase and master key are cleared from memory
+   - Your salt remains in Firestore for next time
 
 ### Recovery
 

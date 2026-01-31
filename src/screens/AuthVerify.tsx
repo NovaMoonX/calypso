@@ -5,13 +5,14 @@ import { Modal } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
 import { useAuth } from '@hooks/useAuth';
 import { CalypsoLogo } from '@components/Logo';
+import { UserSettingsService } from '@/services/UserSettingsService';
 
 export function AuthVerify() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailInput, setEmailInput] = useState('');
-  const { signInWithEmailLink } = useAuth();
+  const { signInWithEmailLink, user } = useAuth();
   const navigate = useNavigate();
 
     const verifyEmail = useCallback(async (email: string) => {
@@ -19,14 +20,30 @@ export function AuthVerify() {
     try {
       await signInWithEmailLink(email);
       
-      // Redirect to passphrase setup
-      navigate('/auth/passphrase');
+      // Wait a moment for auth state to update
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Check if user has already set up passphrase
+      if (user) {
+        const hasPassphrase = await UserSettingsService.hasPassphrase(user.uid);
+        
+        if (hasPassphrase) {
+          // Returning user - go directly to passphrase entry
+          navigate('/auth/passphrase');
+        } else {
+          // New user - go to passphrase setup
+          navigate('/auth/passphrase');
+        }
+      } else {
+        // If user is not set yet, just navigate to passphrase
+        navigate('/auth/passphrase');
+      }
     } catch (err) {
       console.error('Error verifying email:', err);
       setError('Failed to verify email. The link may be invalid or expired.');
       setLoading(false);
     }
-  }, [signInWithEmailLink, navigate]);
+  }, [signInWithEmailLink, navigate, user]);
 
   useEffect(() => {
     const checkEmail = async () => {
