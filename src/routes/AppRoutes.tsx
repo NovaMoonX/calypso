@@ -7,6 +7,7 @@ import AuthVerify from '@screens/AuthVerify';
 import PassphraseSetup from '@screens/PassphraseSetup';
 import RecoveryCodes from '@screens/RecoveryCodes';
 import Dashboard from '@screens/Dashboard';
+import Passwords from '@screens/Passwords';
 import { ProtectedRoute } from '@components/ProtectedRoute';
 
 export const router = createBrowserRouter([
@@ -47,6 +48,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requireMasterKey>
             <Dashboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'passwords',
+        element: (
+          <ProtectedRoute requireMasterKey>
+            <Passwords />
           </ProtectedRoute>
         ),
       },

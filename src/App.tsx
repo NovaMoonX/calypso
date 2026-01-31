@@ -4,6 +4,7 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from '@routes/AppRoutes';
 import { AuthProvider } from '@contexts/AuthProvider';
 import { VaultProvider } from '@contexts/VaultProvider';
+import { PasswordsProvider } from '@contexts/PasswordsProvider';
 
 function App() {
   return (
@@ -11,7 +12,9 @@ function App() {
       <DreamerUIProvider theme={{ defaultTheme: 'dark'}}>
         <AuthProvider>
           <VaultProvider>
-            <RouterProvider router={router} />
+            <PasswordsProvider>
+              <RouterProvider router={router} />
+            </PasswordsProvider>
           </VaultProvider>
         </AuthProvider>
       </DreamerUIProvider>

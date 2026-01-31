@@ -19,6 +19,23 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
     
+    // Password items - strictly authorized access
+    match /password_items/{itemId} {
+      // Allow read if the user owns the item
+      allow read: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      
+      // Allow create if the user is authenticated and sets themselves as owner
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      
+      // Allow update if the user owns the item and doesn't change the ownerId
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.ownerId
+        && request.auth.uid == request.resource.data.ownerId;
+      
+      // Allow delete if the user owns the item
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+    
     // Recovery codes - user can only access their own codes
     match /recovery_codes/{userId} {
       // Allow read if the user is accessing their own codes

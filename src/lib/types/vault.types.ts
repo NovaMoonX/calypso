@@ -2,7 +2,7 @@
  * Vault item types and interfaces
  */
 
-export type VaultItemType = 'folder' | 'text' | 'image' | 'video' | 'file';
+export type VaultItemType = 'folder' | 'text' | 'image' | 'video' | 'file' | 'password';
 
 export interface VaultItemMetadata {
   name: string;
@@ -29,6 +29,28 @@ export interface VaultItem {
   encryptedDek?: string;
   iv?: string;
   dekIv?: string;
+}
+
+export interface PasswordItemData {
+  title?: string;
+  username: string;
+  password: string;
+  notes?: string;
+}
+
+export interface PasswordItem {
+  id: string;
+  ownerId: string;
+  type: 'password';
+  metadata: {
+    name: string; // Display name for the password item
+    createdAt: number;
+    updatedAt: number;
+  };
+  encryptedData: string; // Encrypted PasswordItemData
+  encryptedDek: string;
+  iv: string;
+  dekIv: string;
 }
 
 export interface CreateVaultItemInput {
