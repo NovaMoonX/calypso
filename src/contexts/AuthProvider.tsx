@@ -21,14 +21,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [masterKey, setMasterKey] = useState<CryptoKey | null>(null);
   const [salt, setSalt] = useState<Uint8Array | null>(null);
 
+  // Shared reset logic for clearing user session data
+  const resetSessionData = (userId: string | null) => {
+    setMasterKey(null);
+    setSalt(null);
+    
+    // Clear stored data
+    if (userId) {
+      window.localStorage.removeItem(`salt_${userId}`);
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
       setLoading(false);
+      
+      // Reset session data when user signs out
+      if (!currentUser) {
+        resetSessionData(user?.uid || null);
+      }
     });
 
     return unsubscribe;
-  }, []);
+  }, [user?.uid]);
 
   const sendSignInLink = async (email: string) => {
     const actionCodeSettings = {
@@ -63,14 +79,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signOut = async () => {
+    const userId = user?.uid || null;
     await firebaseSignOut(auth);
-    setMasterKey(null);
-    setSalt(null);
-    
-    // Clear stored data
-    if (user) {
-      window.localStorage.removeItem(`salt_${user.uid}`);
-    }
+    resetSessionData(userId);
     
     // Redirect to login page
     window.location.href = '/login';
