@@ -304,6 +304,7 @@ export class EncryptionService {
       return decrypted === 'calypso-passphrase-check';
     } catch (error) {
       // Decryption failed - incorrect passphrase
+      console.error('Passphrase verification failed:', error);
       return false;
     }
   }
