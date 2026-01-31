@@ -5,7 +5,9 @@ import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { useAuth } from '@hooks/useAuth';
 import { CalypsoLogo } from '@components/Logo';
 import {
-  markAsOriginalTab,
+  getTabId,
+  registerTab,
+  unregisterTab,
   listenForAuthVerified,
 } from '@utils/tabCommunication';
 import { useNavigate } from 'react-router-dom';
@@ -18,19 +20,19 @@ export function Login() {
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  // Mark this tab as the original tab (only once on mount)
+  // Register this tab as active and listen for auth verification
   useEffect(() => {
-    markAsOriginalTab();
-  }, []);
+    registerTab();
 
-  // Listen for auth verification from other tabs
-  useEffect(() => {
     const cleanup = listenForAuthVerified((redirectTo) => {
       // Navigate to the specified route when auth is verified in another tab
       navigate(redirectTo);
     });
 
-    return cleanup;
+    return () => {
+      cleanup();
+      unregisterTab();
+    };
   }, [navigate]);
 
   const handleSendLink = async (e: React.FormEvent) => {
@@ -42,7 +44,9 @@ export function Login() {
 
     setLoading(true);
     try {
-      await sendSignInLink(email);
+      // Pass the current tab ID so the email link knows which tab to redirect
+      const tabId = getTabId();
+      await sendSignInLink(email, tabId);
       setSent(true);
     } catch (error) {
       console.error('Error sending sign-in link:', error);

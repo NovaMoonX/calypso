@@ -44,9 +44,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return unsubscribe;
   }, []);
 
-  const sendSignInLink = async (email: string) => {
+  const sendSignInLink = async (email: string, tabId?: string) => {
     const actionCodeSettings = {
-      url: window.location.origin + '/auth/verify',
+      url: `${window.location.origin}/auth/verify${tabId ? `?tabId=${tabId}` : ''}`,
       handleCodeInApp: true,
     };
 

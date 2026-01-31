@@ -4,43 +4,167 @@
  */
 
 const CHANNEL_NAME = 'calypso-auth';
-const ORIGINAL_TAB_KEY = 'calypso-original-tab';
+const TAB_ID_KEY = 'calypso-tab-id';
+const ACTIVE_TABS_KEY = 'calypso-active-tabs';
 
 export interface AuthMessage {
-  type: 'AUTH_VERIFIED';
-  redirectTo: string;
+  type: 'AUTH_VERIFIED' | 'TAB_PING';
+  targetTabId?: string;
+  redirectTo?: string;
+  responderId?: string;
 }
 
 /**
- * Mark the current tab as the original tab that initiated the sign-in
+ * Generate a unique ID for this tab
  */
-export function markAsOriginalTab(): void {
-  sessionStorage.setItem(ORIGINAL_TAB_KEY, 'true');
+function generateTabId(): string {
+  return `tab-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
 /**
- * Check if the current tab is the original tab that initiated the sign-in
+ * Get or create a unique ID for the current tab
  */
-export function isOriginalTab(): boolean {
-  return sessionStorage.getItem(ORIGINAL_TAB_KEY) === 'true';
+export function getTabId(): string {
+  let tabId = sessionStorage.getItem(TAB_ID_KEY);
+  if (!tabId) {
+    tabId = generateTabId();
+    sessionStorage.setItem(TAB_ID_KEY, tabId);
+  }
+  return tabId;
 }
 
 /**
- * Clear the original tab marker
+ * Register this tab as active in localStorage
+ * This allows other tabs to detect if this tab is still open
  */
-export function clearOriginalTabMarker(): void {
-  sessionStorage.removeItem(ORIGINAL_TAB_KEY);
+export function registerTab(): void {
+  const tabId = getTabId();
+  const activeTabs = getActiveTabs();
+  if (!activeTabs.includes(tabId)) {
+    activeTabs.push(tabId);
+    localStorage.setItem(ACTIVE_TABS_KEY, JSON.stringify(activeTabs));
+  }
 }
 
 /**
- * Send authentication verified message to all tabs
+ * Unregister this tab from active tabs
  */
-export function notifyAuthVerified(redirectTo: string): void {
+export function unregisterTab(): void {
+  const tabId = getTabId();
+  const activeTabs = getActiveTabs();
+  const filtered = activeTabs.filter(id => id !== tabId);
+  localStorage.setItem(ACTIVE_TABS_KEY, JSON.stringify(filtered));
+}
+
+/**
+ * Get list of active tab IDs from localStorage
+ */
+function getActiveTabs(): string[] {
+  try {
+    const stored = localStorage.getItem(ACTIVE_TABS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Check if a specific tab is still active
+ */
+export function isTabActive(tabId: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const activeTabs = getActiveTabs();
+    
+    // Quick check: if not in the list, it's definitely not active
+    if (!activeTabs.includes(tabId)) {
+      resolve(false);
+      return;
+    }
+
+    // Send a ping to verify the tab is actually responsive
+    let responded = false;
+    const timeoutId = setTimeout(() => {
+      if (!responded) {
+        resolve(false);
+      }
+    }, 500);
+
+    const cleanup = listenForTabResponse((message) => {
+      if (message.type === 'TAB_PING' && message.responderId === tabId) {
+        responded = true;
+        clearTimeout(timeoutId);
+        cleanup();
+        resolve(true);
+      }
+    });
+
+    // Send ping via BroadcastChannel
+    if (typeof BroadcastChannel !== 'undefined') {
+      const channel = new BroadcastChannel(CHANNEL_NAME);
+      channel.postMessage({
+        type: 'TAB_PING',
+        targetTabId: tabId,
+      });
+      channel.close();
+    }
+
+    // Fallback: localStorage ping
+    localStorage.setItem(
+      'calypso-tab-ping',
+      JSON.stringify({ targetTabId: tabId, timestamp: Date.now() })
+    );
+    setTimeout(() => localStorage.removeItem('calypso-tab-ping'), 100);
+  });
+}
+
+/**
+ * Listen for tab ping responses (internal helper)
+ */
+function listenForTabResponse(
+  callback: (message: AuthMessage) => void
+): () => void {
+  const cleanupFunctions: Array<() => void> = [];
+
+  if (typeof BroadcastChannel !== 'undefined') {
+    const channel = new BroadcastChannel(CHANNEL_NAME);
+    const handler = (event: MessageEvent<AuthMessage>) => {
+      callback(event.data);
+    };
+    channel.addEventListener('message', handler);
+    cleanupFunctions.push(() => {
+      channel.removeEventListener('message', handler);
+      channel.close();
+    });
+  }
+
+  const storageHandler = (event: StorageEvent) => {
+    if (event.key === 'calypso-tab-pong' && event.newValue) {
+      try {
+        const data = JSON.parse(event.newValue);
+        callback(data);
+      } catch (error) {
+        console.error('Error parsing tab pong:', error);
+      }
+    }
+  };
+  window.addEventListener('storage', storageHandler);
+  cleanupFunctions.push(() => {
+    window.removeEventListener('storage', storageHandler);
+  });
+
+  return () => cleanupFunctions.forEach((fn) => fn());
+}
+
+/**
+ * Send authentication verified message to a specific tab
+ */
+export function notifyAuthVerified(targetTabId: string, redirectTo: string): void {
   // Use BroadcastChannel for modern browsers
   if (typeof BroadcastChannel !== 'undefined') {
     const channel = new BroadcastChannel(CHANNEL_NAME);
     const message: AuthMessage = {
       type: 'AUTH_VERIFIED',
+      targetTabId,
       redirectTo,
     };
     channel.postMessage(message);
@@ -52,6 +176,7 @@ export function notifyAuthVerified(redirectTo: string): void {
   localStorage.setItem(
     'calypso-auth-redirect',
     JSON.stringify({
+      targetTabId,
       redirectTo,
       timestamp: Date.now(),
     }),
@@ -64,20 +189,28 @@ export function notifyAuthVerified(redirectTo: string): void {
 }
 
 /**
- * Listen for authentication verified messages
+ * Listen for authentication verified messages targeted at this tab
  * Returns a cleanup function to stop listening
  */
 export function listenForAuthVerified(
   callback: (redirectTo: string) => void,
 ): () => void {
+  const myTabId = getTabId();
   const cleanupFunctions: Array<() => void> = [];
 
   // Use BroadcastChannel for modern browsers
   if (typeof BroadcastChannel !== 'undefined') {
     const channel = new BroadcastChannel(CHANNEL_NAME);
     const handler = (event: MessageEvent<AuthMessage>) => {
-      if (event.data.type === 'AUTH_VERIFIED') {
+      if (event.data.type === 'AUTH_VERIFIED' && event.data.targetTabId === myTabId && event.data.redirectTo) {
         callback(event.data.redirectTo);
+      } else if (event.data.type === 'TAB_PING' && event.data.targetTabId === myTabId) {
+        // Respond to ping requests
+        const response: AuthMessage = {
+          type: 'TAB_PING',
+          responderId: myTabId,
+        };
+        channel.postMessage(response);
       }
     };
     channel.addEventListener('message', handler);
@@ -92,9 +225,25 @@ export function listenForAuthVerified(
     if (event.key === 'calypso-auth-redirect' && event.newValue) {
       try {
         const data = JSON.parse(event.newValue);
-        callback(data.redirectTo);
+        if (data.targetTabId === myTabId && data.redirectTo) {
+          callback(data.redirectTo);
+        }
       } catch (error) {
         console.error('Error parsing auth redirect data:', error);
+      }
+    } else if (event.key === 'calypso-tab-ping' && event.newValue) {
+      try {
+        const data = JSON.parse(event.newValue);
+        if (data.targetTabId === myTabId) {
+          // Respond to ping via localStorage
+          localStorage.setItem(
+            'calypso-tab-pong',
+            JSON.stringify({ responderId: myTabId, timestamp: Date.now() })
+          );
+          setTimeout(() => localStorage.removeItem('calypso-tab-pong'), 100);
+        }
+      } catch (error) {
+        console.error('Error parsing tab ping:', error);
       }
     }
   };

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
@@ -9,7 +9,7 @@ import { isSignInWithEmailLink } from 'firebase/auth';
 import { auth } from '@lib/firebase/FirebaseConfig';
 import { FirebaseError } from 'firebase/app';
 import {
-  isOriginalTab,
+  isTabActive,
   notifyAuthVerified,
   closeCurrentTab,
 } from '@utils/tabCommunication';
@@ -21,6 +21,7 @@ export function AuthVerify() {
   const [emailInput, setEmailInput] = useState('');
   const { signInWithEmailLink } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const verifyEmail = useCallback(
     async (email: string) => {
@@ -32,27 +33,35 @@ export function AuthVerify() {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const redirectPath = '/auth/passphrase';
+        
+        // Extract the tab ID from the URL (if present)
+        const targetTabId = searchParams.get('tabId');
 
-        // Check if this is the original tab (user clicked link in same tab)
-        // or a new tab (user clicked link from email in a different tab)
-        if (isOriginalTab()) {
-          // This is the original tab - just navigate normally
-          navigate(redirectPath);
+        if (targetTabId) {
+          // Check if the original tab is still active
+          const tabStillActive = await isTabActive(targetTabId);
+          
+          if (tabStillActive) {
+            // Original tab is still open - redirect it and close this tab
+            notifyAuthVerified(targetTabId, redirectPath);
+
+            // Wait a moment for the message to be sent
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // Attempt to close this tab
+            closeCurrentTab();
+
+            // Wait a bit to give the browser a chance to close the tab
+            // If the tab doesn't close, navigate anyway as a fallback
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            navigate(redirectPath);
+          } else {
+            // Original tab is gone - continue in this tab
+            navigate(redirectPath);
+          }
         } else {
-          // This is a new tab opened from the email link
-          // Notify the original tab to navigate
-          notifyAuthVerified(redirectPath);
-
-          // Wait a moment for the message to be sent
-          await new Promise((resolve) => setTimeout(resolve, 500));
-
-          // Attempt to close this tab
-          // Note: This may fail due to browser security restrictions
-          closeCurrentTab();
-
-          // Wait a bit to give the browser a chance to close the tab
-          // If the tab doesn't close, navigate anyway as a fallback
-          await new Promise((resolve) => setTimeout(resolve, 1500));
+          // No tab ID provided (shouldn't happen with new flow, but handle gracefully)
+          // Just navigate in the current tab
           navigate(redirectPath);
         }
       } catch (error: unknown) {
@@ -76,7 +85,7 @@ export function AuthVerify() {
         setLoading(false);
       }
     },
-    [signInWithEmailLink, navigate],
+    [signInWithEmailLink, navigate, searchParams],
   );
 
   useEffect(() => {
