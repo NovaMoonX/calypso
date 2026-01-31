@@ -26,7 +26,7 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 - 📝 **Multiple File Types**: Store text, images, videos, and files (50MB max per file)
 - 🔍 **Auto-Detection**: File types automatically detected from MIME type during upload
 - ✏️ **File Renaming**: Rename files before uploading to the vault
-- 🛡️ **Type Restrictions**: Only allowed file types can be uploaded (images, videos, audio, PDFs, documents)
+- 🛡️ **Flexible File Support**: Upload any file type including custom document formats (50MB max per file)
 - 🗂️ **Smart Navigation**: Back button with breadcrumb path display
 
 ### User Interface
@@ -196,7 +196,7 @@ firebase deploy
    - **Create Folders**: Click "NEW FOLDER" to organize your data
    - **Add Text Notes**: Click "NEW TEXT" for encrypted text storage
    - **Upload Files**: Click "UPLOAD FILE" for images, videos, or documents
-     - Select a file from your device (restricted to images, videos, audio, PDFs, and documents)
+     - Select any file from your device (including custom document formats)
      - File type is automatically detected from the file's MIME type
      - View file information (name, type, size) after selection
      - Optionally rename the file before uploading
@@ -209,19 +209,18 @@ firebase deploy
 
 ### Supported File Types
 
-The vault supports uploading the following file types:
+The vault supports uploading **any file type**, including:
 
-**Images**: JPEG (.jpg, .jpeg), PNG (.png), GIF (.gif), WebP (.webp), SVG (.svg)
+**Common formats**:
+- **Images**: JPEG, PNG, GIF, WebP, SVG
+- **Videos**: MP4, WebM, OGG, QuickTime
+- **Audio**: MP3
+- **Documents**: PDF, TXT, MD, HTML, Word, Excel, PowerPoint, OpenDocument, RTF
+- **Data**: JSON, CSV
 
-**Videos**: MP4 (.mp4), WebM (.webm), OGG (.ogv), QuickTime (.mov)
+**Custom document formats**: Files with custom extensions (e.g., `.akyl`, `.custom`) are fully supported and will be categorized as generic file types.
 
-**Audio**: MP3 (.mp3)
-
-**Documents**: PDF (.pdf), Plain Text (.txt), Markdown (.md), HTML (.html, .htm), Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx), OpenDocument (.odt, .ods, .odp), RTF (.rtf)
-
-**Other**: JSON (.json), CSV (.csv)
-
-File types are automatically detected based on the file's MIME type when you upload. You can also rename files during the upload process.
+File types are automatically detected based on the file's MIME type when you upload. All files are encrypted with the same security standards regardless of type. Maximum file size: 50MB.
 
 ### Recovery
 
