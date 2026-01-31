@@ -63,6 +63,7 @@ Calypso implements a comprehensive zero-knowledge encryption system where your d
 - **Rejection Sampling**: Cryptographically secure random code generation with uniform distribution
 - **Atomic Operations**: Recovery code validation and consumption happen atomically to prevent race conditions
 - **Owner Verification**: Firestore security rules prevent ownerId modification and enforce strict access control
+- **Storage Access Control**: Storage rules restrict file access to owners and enforce the 50MB limit
 - **SHA-256 Hashing**: Recovery codes are hashed before storage in Firestore
 - **Secure Session Management**: Master key held in memory only, cleared on sign-out
 - **Cloud Salt Storage**: Salt stored in Firestore with strict access control (user can only access their own)
@@ -123,6 +124,11 @@ Calypso implements a comprehensive zero-knowledge encryption system where your d
 6. Deploy Firestore indexes:
    ```bash
    firebase deploy --only firestore:indexes
+   ```
+
+7. Deploy Storage security rules:
+   ```bash
+   firebase deploy --only storage
    ```
 
 ### Development
@@ -327,6 +333,44 @@ service cloud.firestore {
 - ✅ Requires authentication for all operations
 - ✅ Denies all other database access by default
 
+## Storage Security Rules
+
+The included `storage.rules` restricts access to encrypted file uploads:
+
+```javascript
+rules_version = '2';
+
+service firebase.storage {
+   match /b/{bucket}/o {
+      function isSignedIn() {
+         return request.auth != null;
+      }
+
+      function isOwner(userId) {
+         return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isValidSize() {
+         return request.resource.size < 50 * 1024 * 1024;
+      }
+
+      match /vault/{userId}/{filePath=**} {
+         allow read: if isOwner(userId);
+         allow write: if isOwner(userId) && isValidSize();
+      }
+
+      match /{allPaths=**} {
+         allow read, write: if false;
+      }
+   }
+}
+```
+
+**Key Security Features**:
+- ✅ Owner-only access to encrypted files
+- ✅ 50MB file size enforcement at the rules layer
+- ✅ Deny-all fallback for any non-vault paths
+
 ## Data Schema
 
 ### Vault Item Structure
@@ -363,7 +407,7 @@ interface VaultItem {
   - `vault_items`: Stores metadata, encrypted DEKs, and encrypted text content
   - `recovery_codes`: Stores hashed recovery codes
   - `user_settings`: Stores salt and passphrase verifier for each user
-- **Firebase Storage**: Stores encrypted file binaries at paths like `encrypted_files/{ownerId}/{itemId}`
+- **Firebase Storage**: Stores encrypted file binaries at paths like `vault/{ownerId}/{timestamp}_{filename}`
 
 ## Project Structure
 
