@@ -34,6 +34,11 @@ export function FileUploadModal({ isOpen, onClose }: FileUploadModalProps) {
     return result;
   };
 
+  const getFileExtension = (fileName: string): string => {
+    const extensionMatch = fileName.match(/\.[^.]+$/);
+    return extensionMatch ? extensionMatch[0] : '';
+  };
+
   const resetUploadModal = () => {
     setSelectedFile(null);
     setCustomFileName('');
@@ -48,8 +53,7 @@ export function FileUploadModal({ isOpen, onClose }: FileUploadModalProps) {
       let fileName = customFileName.trim();
       if (fileName) {
         // Extract extension from original filename
-        const extensionMatch = selectedFile.name.match(/\.[^.]+$/);
-        const extension = extensionMatch ? extensionMatch[0] : '';
+        const extension = getFileExtension(selectedFile.name);
         
         // Add extension if not already present in custom name
         if (extension && !fileName.endsWith(extension)) {
@@ -136,8 +140,7 @@ export function FileUploadModal({ isOpen, onClose }: FileUploadModalProps) {
               {customFileName.trim() ? (
                 <p className="text-xs text-foreground/50">
                   Will be saved as: <span className="font-medium text-foreground">{customFileName.trim()}{(() => {
-                    const extensionMatch = selectedFile.name.match(/\.[^.]+$/);
-                    const extension = extensionMatch ? extensionMatch[0] : '';
+                    const extension = getFileExtension(selectedFile.name);
                     return !customFileName.trim().endsWith(extension) ? extension : '';
                   })()}</span>
                 </p>
