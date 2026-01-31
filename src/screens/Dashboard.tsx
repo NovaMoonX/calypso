@@ -12,6 +12,7 @@ import { VaultItem } from '@lib/types/vault.types';
 import { Plus, ChevronLeft, Trash } from '@moondreamsdev/dreamer-ui/symbols';
 import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@components/Icons';
 import { CalypsoLogoWithText } from '@components/Logo';
+import { FileUploadModal } from '@components/FileUploadModal';
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
@@ -25,7 +26,6 @@ export function Dashboard() {
     navigateBack,
     createFolder,
     createTextItem,
-    uploadFile,
     deleteItem,
   } = useVault();
 
@@ -35,8 +35,6 @@ export function Dashboard() {
   const [newFolderName, setNewFolderName] = useState('');
   const [newTextName, setNewTextName] = useState('');
   const [newTextContent, setNewTextContent] = useState('');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadType, setUploadType] = useState<'image' | 'video' | 'file'>('file');
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
@@ -70,25 +68,6 @@ export function Dashboard() {
       addToast({ 
         title: 'Error', 
         description: 'Failed to create text item', 
-        type: 'error' 
-      });
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
-    try {
-      await uploadFile(selectedFile, uploadType);
-      setSelectedFile(null);
-      setShowUploadModal(false);
-      addToast({ title: 'Success', description: 'File uploaded successfully' });
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to upload file';
-      addToast({ 
-        title: 'Error', 
-        description: errorMessage, 
         type: 'error' 
       });
     }
@@ -324,61 +303,10 @@ export function Dashboard() {
       </Modal>
 
       {/* Upload File Modal */}
-      <Modal
+      <FileUploadModal 
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
-        title="Upload File"
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">File Type</label>
-            <select
-              value={uploadType}
-              onChange={(e) => setUploadType(e.target.value as 'image' | 'video' | 'file')}
-              className={join(
-                'w-full px-3 py-2 rounded-md',
-                'bg-background border border-border',
-                'text-foreground',
-                'focus:outline-none focus:ring-2 focus:ring-primary'
-              )}
-            >
-              <option value="image">Image</option>
-              <option value="video">Video</option>
-              <option value="file">File</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Select File</label>
-            <input
-              type="file"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-              className={join(
-                'w-full px-3 py-2 rounded-md',
-                'bg-background border border-border',
-                'text-foreground text-sm',
-                'file:mr-4 file:py-1 file:px-3',
-                'file:rounded-md file:border-0',
-                'file:text-sm file:font-medium',
-                'file:bg-primary file:text-primary-foreground',
-                'file:cursor-pointer'
-              )}
-            />
-            {selectedFile && (
-              <p className="text-xs text-foreground/70">
-                Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
-              </p>
-            )}
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="secondary" onClick={() => setShowUploadModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleUpload} disabled={!selectedFile}>
-              Upload
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      />
     </div>
   );
 }
