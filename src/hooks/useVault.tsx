@@ -10,7 +10,7 @@ export interface VaultContextType {
   navigateBack: () => void;
   createFolder: (name: string) => Promise<void>;
   createTextItem: (name: string, content: string) => Promise<void>;
-  uploadFile: (file: File, customFileName?: string) => Promise<void>;
+  uploadFile: (file: File, fileName: string) => Promise<void>;
   deleteItem: (itemId: string) => Promise<void>;
   getDecryptedText: (itemId: string) => Promise<string>;
   getDecryptedFileUrl: (itemId: string) => Promise<string>;

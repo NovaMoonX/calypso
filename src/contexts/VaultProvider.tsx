@@ -162,7 +162,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
     await loadItems();
   };
 
-  const uploadFile = async (file: File, customFileName?: string) => {
+  const uploadFile = async (file: File, fileName: string) => {
     if (!user || !masterKey) {
       throw new Error('User not authenticated or master key not set');
     }
@@ -175,9 +175,6 @@ export function VaultProvider({ children }: VaultProviderProps) {
 
     // Auto-detect file type from MIME type
     const type = detectFileType(file.type);
-    
-    // Use custom file name if provided, otherwise use original file name
-    const fileName = customFileName || file.name;
 
     // Read file as ArrayBuffer
     const fileBuffer = await file.arrayBuffer();

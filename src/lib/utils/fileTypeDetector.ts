@@ -81,10 +81,3 @@ export function getAcceptAttribute(): string {
   const extensions = Object.values(ALLOWED_FILE_TYPES).flat();
   return extensions.join(',');
 }
-
-/**
- * Validates if a file type is allowed for upload
- */
-export function isFileTypeAllowed(mimeType: string): boolean {
-  return Object.keys(ALLOWED_FILE_TYPES).includes(mimeType);
-}

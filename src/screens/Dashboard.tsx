@@ -80,8 +80,21 @@ export function Dashboard() {
     if (!selectedFile) return;
 
     try {
-      // Use custom file name if provided, otherwise use original file name
-      const fileName = customFileName.trim() || selectedFile.name;
+      // Preserve file extension when custom name is provided
+      let fileName = customFileName.trim();
+      if (fileName) {
+        // Extract extension from original filename
+        const extensionMatch = selectedFile.name.match(/\.[^.]+$/);
+        const extension = extensionMatch ? extensionMatch[0] : '';
+        
+        // Add extension if not already present in custom name
+        if (extension && !fileName.endsWith(extension)) {
+          fileName += extension;
+        }
+      } else {
+        // Use original filename if no custom name provided
+        fileName = selectedFile.name;
+      }
       
       await uploadFile(selectedFile, fileName);
       setSelectedFile(null);
@@ -389,10 +402,10 @@ export function Dashboard() {
                 <Input
                   value={customFileName}
                   onChange={(e) => setCustomFileName(e.target.value)}
-                  placeholder={`Leave empty to use: ${selectedFile.name}`}
+                  placeholder="Enter custom name (extension will be preserved)"
                 />
                 <p className="text-xs text-foreground/50">
-                  Rename the file before uploading, or leave empty to keep original name
+                  Leave empty to keep original name. File extension will be automatically preserved.
                 </p>
               </div>
             </>
