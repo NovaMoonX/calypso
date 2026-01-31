@@ -217,7 +217,7 @@ The vault supports uploading the following file types:
 
 **Audio**: MP3 (.mp3)
 
-**Documents**: PDF (.pdf), Plain Text (.txt), Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)
+**Documents**: PDF (.pdf), Plain Text (.txt), Markdown (.md), HTML (.html, .htm), Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx), OpenDocument (.odt, .ods, .odp), RTF (.rtf)
 
 **Other**: JSON (.json), CSV (.csv)
 
