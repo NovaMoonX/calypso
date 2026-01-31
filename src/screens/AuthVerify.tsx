@@ -14,6 +14,10 @@ import {
   closeCurrentTab,
 } from '@utils/tabCommunication';
 
+// Timing constants for tab closing behavior
+const MESSAGE_SEND_DELAY_MS = 500;
+const TAB_CLOSE_FALLBACK_DELAY_MS = 1500;
+
 export function AuthVerify() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,14 +50,14 @@ export function AuthVerify() {
             notifyAuthVerified(targetTabId, redirectPath);
 
             // Wait a moment for the message to be sent
-            await new Promise((resolve) => setTimeout(resolve, 500));
+            await new Promise((resolve) => setTimeout(resolve, MESSAGE_SEND_DELAY_MS));
 
             // Attempt to close this tab
             closeCurrentTab();
 
             // Wait a bit to give the browser a chance to close the tab
             // If the tab doesn't close, navigate anyway as a fallback
-            await new Promise((resolve) => setTimeout(resolve, 1500));
+            await new Promise((resolve) => setTimeout(resolve, TAB_CLOSE_FALLBACK_DELAY_MS));
             navigate(redirectPath);
           } else {
             // Original tab is gone - continue in this tab

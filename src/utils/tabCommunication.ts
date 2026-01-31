@@ -202,8 +202,13 @@ export function listenForAuthVerified(
   if (typeof BroadcastChannel !== 'undefined') {
     const channel = new BroadcastChannel(CHANNEL_NAME);
     const handler = (event: MessageEvent<AuthMessage>) => {
-      if (event.data.type === 'AUTH_VERIFIED' && event.data.targetTabId === myTabId && event.data.redirectTo) {
-        callback(event.data.redirectTo);
+      const isAuthVerifiedForThisTab =
+        event.data.type === 'AUTH_VERIFIED' &&
+        event.data.targetTabId === myTabId &&
+        event.data.redirectTo;
+
+      if (isAuthVerifiedForThisTab) {
+        callback(event.data.redirectTo!);
       } else if (event.data.type === 'TAB_PING' && event.data.targetTabId === myTabId) {
         // Respond to ping requests
         const response: AuthMessage = {
