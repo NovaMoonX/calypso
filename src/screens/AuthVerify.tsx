@@ -6,6 +6,8 @@ import { Input } from '@moondreamsdev/dreamer-ui/components';
 import { useAuth } from '@hooks/useAuth';
 import { CalypsoLogo } from '@components/Logo';
 import { UserSettingsService } from '@/services/UserSettingsService';
+import { isSignInWithEmailLink } from 'firebase/auth';
+import { auth } from '@lib/firebase/FirebaseConfig';
 
 export function AuthVerify() {
   const [loading, setLoading] = useState(true);
@@ -23,38 +25,42 @@ export function AuthVerify() {
       // Wait a moment for auth state to update
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Check if user has already set up passphrase
-      if (user) {
-        const hasPassphrase = await UserSettingsService.hasPassphrase(user.uid);
-        
-        if (hasPassphrase) {
-          // Returning user - go directly to passphrase entry
-          navigate('/auth/passphrase');
-        } else {
-          // New user - go to passphrase setup
-          navigate('/auth/passphrase');
-        }
-      } else {
-        // If user is not set yet, just navigate to passphrase
-        navigate('/auth/passphrase');
-      }
-    } catch (err) {
+      // Navigate to passphrase - the PassphraseSetup component
+      // will determine if user is new or returning
+      navigate('/auth/passphrase');
+    } catch (err: any) {
       console.error('Error verifying email:', err);
-      setError('Failed to verify email. The link may be invalid or expired.');
+      
+      // Check if error is due to expired/invalid link
+      const errorCode = err?.code || '';
+      if (errorCode === 'auth/invalid-action-code' || errorCode === 'auth/expired-action-code') {
+        setError('This link has expired or already been used. Please request a new sign-in link.');
+      } else {
+        setError('Failed to verify email. The link may be invalid or expired.');
+      }
       setLoading(false);
     }
-  }, [signInWithEmailLink, navigate, user]);
+  }, [signInWithEmailLink, navigate]);
 
   useEffect(() => {
     const checkEmail = async () => {
+      // First, verify this is actually a valid email link
+      const currentUrl = window.location.href;
+      if (!isSignInWithEmailLink(auth, currentUrl)) {
+        setError('This link is invalid or has expired. Please request a new sign-in link.');
+        setLoading(false);
+        return;
+      }
+      
       const storedEmail = window.localStorage.getItem('emailForSignIn');
       
       if (!storedEmail) {
-        // Show modal to ask for email
+        // Only show modal if we don't have stored email
+        // This prevents the flash when email is already in localStorage
         setLoading(false);
         setShowEmailModal(true);
       } else {
-        // Proceed with stored email
+        // Proceed with stored email immediately (no modal flash)
         await verifyEmail(storedEmail);
       }
     };
@@ -96,9 +102,14 @@ export function AuthVerify() {
                 VERIFICATION FAILED
               </h1>
               <p className="text-sm text-foreground/70 font-mono">{error}</p>
-              <Button href="/login" className="font-mono tracking-wider">
-                BACK TO LOGIN
-              </Button>
+              <div className="space-y-2">
+                <Button href="/login" className="font-mono tracking-wider w-full">
+                  REQUEST NEW LINK
+                </Button>
+                <p className="text-xs text-foreground/50 font-mono">
+                  Check your email for the most recent sign-in link, or request a new one above.
+                </p>
+              </div>
             </div>
           </div>
         ) : null}

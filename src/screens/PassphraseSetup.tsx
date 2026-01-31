@@ -110,7 +110,7 @@ export function PassphraseSetup() {
               type="password"
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
-              placeholder="Enter a strong passphrase"
+              placeholder={isReturningUser ? "Enter your passphrase" : "Enter a strong passphrase"}
               required
               disabled={loading}
               minLength={12}
