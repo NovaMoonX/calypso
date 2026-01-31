@@ -7,6 +7,7 @@ import AuthVerify from '@screens/AuthVerify';
 import PassphraseSetup from '@screens/PassphraseSetup';
 import RecoveryCodes from '@screens/RecoveryCodes';
 import Dashboard from '@screens/Dashboard';
+import { ProtectedRoute } from '@components/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
@@ -27,15 +28,27 @@ export const router = createBrowserRouter([
       },
       {
         path: 'auth/passphrase',
-        element: <PassphraseSetup />,
+        element: (
+          <ProtectedRoute>
+            <PassphraseSetup />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'auth/recovery-codes',
-        element: <RecoveryCodes />,
+        element: (
+          <ProtectedRoute>
+            <RecoveryCodes />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: (
+          <ProtectedRoute requireMasterKey>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
       },
       // About page (lazy loaded)
       {
