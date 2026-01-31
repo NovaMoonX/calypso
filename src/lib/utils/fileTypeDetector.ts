@@ -64,11 +64,6 @@ export const ALLOWED_FILE_TYPES = {
   'application/vnd.ms-powerpoint': ['.ppt'],
   'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'],
   
-  // Archives
-  'application/zip': ['.zip'],
-  'application/x-rar-compressed': ['.rar'],
-  'application/x-7z-compressed': ['.7z'],
-  
   // Other
   'application/json': ['.json'],
   'text/csv': ['.csv'],

@@ -26,7 +26,7 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 - 📝 **Multiple File Types**: Store text, images, videos, and files (50MB max per file)
 - 🔍 **Auto-Detection**: File types automatically detected from MIME type during upload
 - ✏️ **File Renaming**: Rename files before uploading to the vault
-- 🛡️ **Type Restrictions**: Only allowed file types can be uploaded (images, videos, PDFs, documents, archives)
+- 🛡️ **Type Restrictions**: Only allowed file types can be uploaded (images, videos, PDFs, documents)
 - 🗂️ **Smart Navigation**: Back button with breadcrumb path display
 
 ### User Interface
@@ -196,7 +196,7 @@ firebase deploy
    - **Create Folders**: Click "NEW FOLDER" to organize your data
    - **Add Text Notes**: Click "NEW TEXT" for encrypted text storage
    - **Upload Files**: Click "UPLOAD FILE" for images, videos, or documents
-     - Select a file from your device (restricted to images, videos, PDFs, documents, and archives)
+     - Select a file from your device (restricted to images, videos, PDFs, and documents)
      - File type is automatically detected from the file's MIME type
      - View file information (name, type, size) after selection
      - Optionally rename the file before uploading
@@ -216,8 +216,6 @@ The vault supports uploading the following file types:
 **Videos**: MP4 (.mp4), WebM (.webm), OGG (.ogv), QuickTime (.mov)
 
 **Documents**: PDF (.pdf), Plain Text (.txt), Word (.doc, .docx), Excel (.xls, .xlsx), PowerPoint (.ppt, .pptx)
-
-**Archives**: ZIP (.zip), RAR (.rar), 7-Zip (.7z)
 
 **Other**: JSON (.json), CSV (.csv)
 
