@@ -214,31 +214,55 @@ export function VaultProvider({ children }: VaultProviderProps) {
     await loadItems();
   };
 
+  const deleteItemRecursive = async (itemId: string): Promise<void> => {
+    // First, delete all child items (if any) that have this item as their parent
+    try {
+      const childrenQuery = query(
+        collection(db, 'vault_items'),
+        where('parentId', '==', itemId)
+      );
+
+      const childrenSnapshot = await getDocs(childrenQuery);
+
+      const deleteChildrenPromises = childrenSnapshot.docs.map((childDoc) => {
+        const result = deleteItemRecursive(childDoc.id);
+        return result;
+      });
+
+      await Promise.all(deleteChildrenPromises);
+    } catch (error) {
+      console.error('Error deleting child vault items recursively:', error);
+    }
+
+    // Get item to check if it has a storage path
+    const itemDoc = await getDoc(doc(db, 'vault_items', itemId));
+    if (!itemDoc.exists()) {
+      return;
+    }
+
+    const item = itemDoc.data() as VaultItem;
+
+    // Delete from storage if it's a file
+    if (item.storagePath) {
+      try {
+        const storageRef = ref(storage, item.storagePath);
+        await deleteObject(storageRef);
+      } catch (error) {
+        console.error('Error deleting file from storage:', error);
+      }
+    }
+
+    // Delete from Firestore
+    await deleteDoc(doc(db, 'vault_items', itemId));
+  };
+
   const deleteItem = async (itemId: string) => {
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    // Get item to check if it has a storage path
-    const itemDoc = await getDoc(doc(db, 'vault_items', itemId));
-    if (itemDoc.exists()) {
-      const item = itemDoc.data() as VaultItem;
-      
-      // Delete from storage if it's a file
-      if (item.storagePath) {
-        try {
-          const storageRef = ref(storage, item.storagePath);
-          await deleteObject(storageRef);
-        } catch (error) {
-          console.error('Error deleting file from storage:', error);
-        }
-      }
-
-      // Delete from Firestore
-      await deleteDoc(doc(db, 'vault_items', itemId));
-
-      await loadItems();
-    }
+    await deleteItemRecursive(itemId);
+    await loadItems();
   };
 
   const getDecryptedText = async (itemId: string): Promise<string> => {
