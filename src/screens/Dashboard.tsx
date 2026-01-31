@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { join } from '@moondreamsdev/dreamer-ui/utils';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
@@ -14,6 +15,7 @@ import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@compo
 import { CalypsoLogoWithText } from '@components/Logo';
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { addToast } = useToast();
   const {
@@ -158,6 +160,31 @@ export function Dashboard() {
           </div>
         </div>
       </header>
+
+      {/* Section Navigation */}
+      <div className="border-b border-border bg-card">
+        <div className="container mx-auto px-4 py-0">
+          <div className="flex gap-0">
+            <button
+              className={join(
+                'px-6 py-3 font-mono text-xs tracking-wider uppercase transition-colors border-b-2',
+                'border-primary text-primary'
+              )}
+            >
+              FILES
+            </button>
+            <button
+              onClick={() => navigate('/passwords')}
+              className={join(
+                'px-6 py-3 font-mono text-xs tracking-wider uppercase transition-colors border-b-2',
+                'border-transparent text-foreground/70 hover:text-foreground hover:border-foreground/30'
+              )}
+            >
+              PASSWORDS
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Navigation */}
       <div className="border-b border-border bg-card">

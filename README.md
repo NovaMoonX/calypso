@@ -1,6 +1,6 @@
 # Calypso
 
-A zero-knowledge encrypted storage vault for securely storing sensitive digital material (notes, images, videos, files).
+A zero-knowledge encrypted storage vault for securely storing sensitive digital material (notes, images, videos, files, and passwords).
 
 ## Features
 
@@ -24,7 +24,9 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 ### Data Management
 - 📁 **Nested Folders**: Organize your encrypted data with unlimited folder hierarchy
 - 📝 **Multiple File Types**: Store text, images, videos, and files (50MB max per file)
+- 🔑 **Password Manager**: Securely store credentials with optional titles and notes
 - 🗂️ **Smart Navigation**: Back button with breadcrumb path display
+- 🔀 **Separate Storage**: Passwords stored separately from file-structured items
 
 ### User Interface
 - 🌑 **Monochrome Security Theme**: Pure grayscale design (black, gray, white)
@@ -33,6 +35,7 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 - 🔰 **Custom "C" Logo**: Secure vault door design
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 - 🎯 **Modal-Based Flows**: Professional UI components instead of browser prompts
+- 📑 **Tabbed Navigation**: Easy switching between Files and Passwords sections
 
 ## Tech Stack
 
@@ -189,13 +192,21 @@ firebase deploy
    - The system derives the key and validates it against the stored verifier
    - If validation fails, you'll see an "Incorrect passphrase" error
    - No need to recreate your passphrase - same one works forever
-3. **Manage Items**:
+3. **Manage Files**:
    - **Create Folders**: Click "NEW FOLDER" to organize your data
    - **Add Text Notes**: Click "NEW TEXT" for encrypted text storage
    - **Upload Files**: Click "UPLOAD FILE" for images, videos, or documents
    - **Navigate**: Click folders to open them, use "← BACK" to go up
    - **Delete**: Hover over items and click the trash icon
-4. **Sign Out**: Click "SIGN OUT" when done (redirects to login)
+4. **Manage Passwords**:
+   - **Switch to Passwords**: Click the "PASSWORDS" tab in the navigation
+   - **Add Password**: Click "NEW PASSWORD" to create an encrypted password entry
+   - **View Password**: Click any password card to view credentials
+   - **Copy Credentials**: Use the "COPY" button to copy username or password to clipboard
+   - **Edit Password**: Hover over a password card and click the edit icon
+   - **Delete Password**: Hover over a password card and click the trash icon
+   - **Password Fields**: Store optional title, username (required), password (required), and notes
+5. **Sign Out**: Click "SIGN OUT" when done (redirects to login)
    - Your passphrase and master key are cleared from memory
    - Your salt remains in Firestore for next time
 
@@ -303,19 +314,23 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Vault items - file storage
     match /vault_items/{itemId} {
-      // Users can only read their own items
       allow read: if request.auth != null && request.auth.uid == resource.data.ownerId;
-      
-      // Users can only create items they own
       allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
-      
-      // Users can only update their own items, and cannot change ownership
       allow update: if request.auth != null 
         && request.auth.uid == resource.data.ownerId
         && request.auth.uid == request.resource.data.ownerId;
-      
-      // Users can only delete their own items
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+    
+    // Password items - separate password storage
+    match /password_items/{itemId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.ownerId
+        && request.auth.uid == request.resource.data.ownerId;
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
     
@@ -328,9 +343,10 @@ service cloud.firestore {
 ```
 
 **Key Security Features**:
-- ✅ Owner-only access enforcement
+- ✅ Owner-only access enforcement for both vault and password items
 - ✅ Prevents ownerId modification during updates
 - ✅ Requires authentication for all operations
+- ✅ Separate collections for files and passwords
 - ✅ Denies all other database access by default
 
 ## Storage Security Rules
@@ -375,7 +391,7 @@ service firebase.storage {
 
 ### Vault Item Structure
 
-Each item in Firestore follows this schema:
+Each file/folder item in Firestore follows this schema:
 
 ```typescript
 interface VaultItem {
@@ -401,10 +417,43 @@ interface VaultItem {
 }
 ```
 
+### Password Item Structure
+
+Each password item is stored in a separate collection with this schema:
+
+```typescript
+interface PasswordItem {
+  id: string;                    // Firestore document ID
+  ownerId: string;               // Firebase Auth UID (immutable after creation)
+  type: 'password';              // Type identifier
+  
+  metadata: {
+    name: string;                // Display name for the password
+    createdAt: number;           // Unix timestamp
+    updatedAt: number;           // Unix timestamp
+  };
+  
+  // Encrypted password data as JSON
+  encryptedData: string;         // Base64-encoded encrypted PasswordItemData
+  encryptedDek: string;          // Encrypted Data Encryption Key
+  iv: string;                    // Initialization Vector for data encryption
+  dekIv: string;                 // IV for DEK encryption
+}
+
+// The decrypted password data structure
+interface PasswordItemData {
+  title?: string;                // Optional title/description
+  username: string;              // Username or email (required)
+  password: string;              // Password (required)
+  notes?: string;                // Optional additional notes
+}
+```
+
 ### Storage Structure
 
 - **Firestore**: 
-  - `vault_items`: Stores metadata, encrypted DEKs, and encrypted text content
+  - `vault_items`: Stores metadata, encrypted DEKs, and encrypted text content for files
+  - `password_items`: Stores encrypted password credentials separately from files
   - `recovery_codes`: Stores hashed recovery codes
   - `user_settings`: Stores salt and passphrase verifier for each user
 - **Firebase Storage**: Stores encrypted file binaries at paths like `vault/{ownerId}/{timestamp}_{filename}`
@@ -414,25 +463,28 @@ interface VaultItem {
 ```
 src/
 ├── components/          # Reusable UI components
-│   ├── Icons.tsx       # Custom SVG icons
+│   ├── Icons.tsx       # Custom SVG icons (includes KeyIcon, EyeIcon, etc.)
 │   └── Logo.tsx        # Calypso logo component
 ├── contexts/           # React Context providers
-│   ├── AuthProvider.tsx    # Authentication & master key management
-│   └── VaultProvider.tsx   # Vault state & CRUD operations
+│   ├── AuthProvider.tsx      # Authentication & master key management
+│   ├── VaultProvider.tsx     # Vault state & CRUD operations for files
+│   └── PasswordsProvider.tsx # Password state & CRUD operations
 ├── hooks/              # Custom React hooks
-│   ├── useAuth.tsx     # Auth context hook
-│   └── useVault.tsx    # Vault context hook
+│   ├── useAuth.tsx       # Auth context hook
+│   ├── useVault.tsx      # Vault context hook
+│   └── usePasswords.tsx  # Passwords context hook
 ├── lib/                # Utilities and configuration
 │   ├── firebase/
 │   │   └── FirebaseConfig.ts
 │   └── types/
-│       └── vault.types.ts
+│       └── vault.types.ts  # Type definitions for vault and password items
 ├── screens/            # Page components
 │   ├── Login.tsx
 │   ├── AuthVerify.tsx
 │   ├── PassphraseSetup.tsx
 │   ├── RecoveryCodes.tsx
-│   └── Dashboard.tsx
+│   ├── Dashboard.tsx   # File management screen
+│   └── Passwords.tsx   # Password management screen
 ├── services/           # Business logic
 │   ├── EncryptionService.ts       # AES-256-GCM encryption with verifier support
 │   ├── RecoveryCodesService.ts    # Recovery code management
