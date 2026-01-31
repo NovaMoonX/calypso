@@ -111,14 +111,13 @@ export function listenForAuthVerified(
 
 /**
  * Attempt to close the current window/tab
- * Returns true if successful, false otherwise
+ * Note: This may fail due to browser security restrictions
+ * Returns false immediately since window.close() doesn't provide feedback
  */
 export function closeCurrentTab(): boolean {
-  try {
-    window.close();
-    return true;
-  } catch (error) {
-    console.error('Failed to close tab:', error);
-    return false;
-  }
+  window.close();
+  // window.close() doesn't throw errors or provide feedback
+  // It will simply fail silently if not allowed by the browser
+  // We return false to indicate uncertainty
+  return false;
 }

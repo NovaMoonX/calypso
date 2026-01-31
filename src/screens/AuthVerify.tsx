@@ -46,16 +46,14 @@ export function AuthVerify() {
           // Wait a moment for the message to be sent
           await new Promise((resolve) => setTimeout(resolve, 500));
 
-          // Try to close this tab
-          const closed = closeCurrentTab();
+          // Attempt to close this tab
+          // Note: This may fail due to browser security restrictions
+          closeCurrentTab();
 
-          // If we can't close the tab (e.g., browser security restrictions),
-          // show a message and navigate anyway
-          if (!closed) {
-            // Wait a bit longer to ensure original tab has received the message
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            navigate(redirectPath);
-          }
+          // Wait a bit to give the browser a chance to close the tab
+          // If the tab doesn't close, navigate anyway as a fallback
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          navigate(redirectPath);
         }
       } catch (error: unknown) {
         const firebaseError = error as FirebaseError;

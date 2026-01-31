@@ -18,10 +18,13 @@ export function Login() {
   const { addToast } = useToast();
   const navigate = useNavigate();
 
-  // Mark this tab as the original tab and listen for auth verification
+  // Mark this tab as the original tab (only once on mount)
   useEffect(() => {
     markAsOriginalTab();
+  }, []);
 
+  // Listen for auth verification from other tabs
+  useEffect(() => {
     const cleanup = listenForAuthVerified((redirectTo) => {
       // Navigate to the specified route when auth is verified in another tab
       navigate(redirectTo);
