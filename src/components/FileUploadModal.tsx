@@ -5,7 +5,7 @@ import { Modal } from '@moondreamsdev/dreamer-ui/components';
 import { Input } from '@moondreamsdev/dreamer-ui/components';
 import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { useVault } from '@hooks/useVault';
-import { detectFileType, getFileTypeLabel } from '@lib/utils/fileTypeDetector';
+import { detectFileType, getFileTypeLabel } from '@lib/utils/fileUtils';
 
 interface FileUploadModalProps {
   isOpen: boolean;

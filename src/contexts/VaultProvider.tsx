@@ -16,7 +16,7 @@ import { VaultContext } from '@hooks/useVault';
 import { useAuth } from '@hooks/useAuth';
 import { VaultItem, CreateVaultItemInput } from '@lib/types/vault.types';
 import { EncryptionService } from '@/services/EncryptionService';
-import { detectFileType } from '@lib/utils/fileTypeDetector';
+import { detectFileType } from '@lib/utils/fileUtils';
 
 interface VaultProviderProps {
   children: ReactNode;
