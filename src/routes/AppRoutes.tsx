@@ -1,8 +1,13 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import Home from '@screens/Home';
 import Layout from '@ui/Layout';
 import Loading from '@ui/Loading';
+import Login from '@screens/Login';
+import AuthVerify from '@screens/AuthVerify';
+import PassphraseSetup from '@screens/PassphraseSetup';
+import RecoveryCodes from '@screens/RecoveryCodes';
+import Dashboard from '@screens/Dashboard';
+import { ProtectedRoute } from '@components/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
@@ -11,7 +16,39 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Home />,
+        element: <Navigate to="/login" replace />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
+      },
+      {
+        path: 'auth/verify',
+        element: <AuthVerify />,
+      },
+      {
+        path: 'auth/passphrase',
+        element: (
+          <ProtectedRoute>
+            <PassphraseSetup />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'auth/recovery-codes',
+        element: (
+          <ProtectedRoute>
+            <RecoveryCodes />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'dashboard',
+        element: (
+          <ProtectedRoute requireMasterKey>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
       },
       // About page (lazy loaded)
       {

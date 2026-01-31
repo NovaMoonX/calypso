@@ -132,3 +132,78 @@ import { helper } from '@utils/helper';
 - **Template literals with `${` in className are FORBIDDEN**
 - **Always import and use `join` from `@moondreamsdev/dreamer-ui/utils`**
 - **Before writing any conditional className, ask: "Am I using join()?"**
+
+## 📚 Documentation Maintenance
+
+### 8. README.md Update Rule
+**CRITICAL**: The README.md must be updated with **EVERY** change to the codebase.
+
+**When to Update README:**
+- ✅ Adding new features or functionality
+- ✅ Modifying security implementation (encryption, authentication, etc.)
+- ✅ Changing UI/UX elements or design
+- ✅ Updating dependencies or tech stack
+- ✅ Modifying data schemas or architecture
+- ✅ Adding or changing configuration requirements
+- ✅ Implementing new security measures
+- ✅ Changing file upload limits or constraints
+- ✅ Modifying authentication flow
+- ✅ Any user-facing changes
+
+**What to Update in README:**
+1. **Features Section**: Add/update feature descriptions with emojis and clear explanations
+2. **Security Architecture**: Document any encryption, authentication, or security changes
+3. **Usage Guide**: Update if user workflows or steps change
+4. **Security Notes**: Add warnings or important security information
+5. **Data Schema**: Update TypeScript interfaces if data structure changes
+6. **Tech Stack**: Update versions or add new technologies
+7. **Troubleshooting**: Add solutions to new common issues
+8. **Design & Visual Aesthetic**: Document design changes or visual updates
+
+**README Update Checklist:**
+- [ ] Is this change user-visible or security-related?
+- [ ] Does this affect how users interact with the app?
+- [ ] Does this change security guarantees or encryption?
+- [ ] Does this modify setup or configuration requirements?
+- [ ] Have I updated all relevant README sections?
+- [ ] Are code examples accurate and up-to-date?
+- [ ] Are version numbers current?
+
+**Why This Matters:**
+The README is the **primary documentation** for potential users. Outdated documentation:
+- ❌ Misleads users about capabilities
+- ❌ Creates security misunderstandings
+- ❌ Causes setup/configuration issues
+- ❌ Damages project credibility
+- ❌ Wastes user time troubleshooting
+
+**Example:**
+```markdown
+# Before making changes
+- Check current README sections
+- Note what needs updating
+
+# After making changes
+- Update affected README sections
+- Verify all examples still work
+- Check that security claims are accurate
+- Update version numbers if needed
+- Add new troubleshooting if needed
+```
+
+**README Sections to Monitor:**
+1. Features (categorized by Security, Authentication, Data Management, UI)
+2. Tech Stack (versions matter!)
+3. Security Architecture (encryption details, iterations, algorithms)
+4. Usage Guide (step-by-step user flows)
+5. Security Notes (critical warnings)
+6. Data Schema (TypeScript interfaces)
+7. Design & Visual Aesthetic (visual design system)
+8. Firestore Rules (security rule explanations)
+9. Troubleshooting (common issues and solutions)
+10. Project Structure (file organization)
+
+**Enforcement:**
+- Every PR should include README updates if applicable
+- Code reviews should verify README accuracy
+- Outdated README is considered a bug

@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidSize() {
+      return request.resource.size < 50 * 1024 * 1024;
+    }
+
+    match /vault/{userId}/{filePath=**} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidSize();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

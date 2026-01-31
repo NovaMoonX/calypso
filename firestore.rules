@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Vault items - strictly authorized access
+    match /vault_items/{itemId} {
+      // Allow read if the user owns the item
+      allow read: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      
+      // Allow create if the user is authenticated and sets themselves as owner
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      
+      // Allow update if the user owns the item and doesn't change the ownerId
+      allow update: if request.auth != null 
+        && request.auth.uid == resource.data.ownerId
+        && request.auth.uid == request.resource.data.ownerId;
+      
+      // Allow delete if the user owns the item
+      allow delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
+    }
+    
+    // Recovery codes - user can only access their own codes
+    match /recovery_codes/{userId} {
+      // Allow read if the user is accessing their own codes
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow create if the user is creating their own codes
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow update if the user is updating their own codes (for consuming codes)
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow delete if the user is deleting their own codes
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // User settings - stores salt and other user-specific data
+    match /user_settings/{userId} {
+      // Allow read if the user is accessing their own settings
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow create if the user is creating their own settings
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow update if the user is updating their own settings
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Allow delete if the user is deleting their own settings
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

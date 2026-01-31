@@ -8,28 +8,34 @@
 }
 
 @theme app {
-	--color-background: var(--color-slate-100);
-	--color-foreground: var(--color-slate-900);
+	--color-background: var(--color-white);
+	--color-foreground: var(--color-gray-900);
+	--color-card: var(--color-gray-50);
+	--font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* Override the variables to create a dark theme */
+/* Dark theme - inverse of light theme */
 .dark {
-	--color-background: var(--color-slate-900);
-	--color-foreground: var(--color-slate-100);
+	--color-background: var(--color-black);
+	--color-foreground: var(--color-gray-100);
+	--color-card: var(--color-gray-950);
 }
 
 #root {
   @apply page bg-background text-foreground;
+  font-family: var(--font-family-mono);
 }
 
 body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-family-mono);
 }
 
 html {
-	@apply bg-background
+	@apply bg-background;
+	font-family: var(--font-family-mono);
 }
 
 /* Smooth height transitions for when keyboard appears on mobile */
