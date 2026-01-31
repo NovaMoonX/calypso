@@ -10,8 +10,8 @@ import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
 import { usePasswords } from '@hooks/usePasswords';
 import { useAuth } from '@hooks/useAuth';
 import { PasswordItem, PasswordItemData } from '@lib/types/vault.types';
-import { Plus, Trash, Eye, EyeOff, Copy, Edit } from '@moondreamsdev/dreamer-ui/symbols';
-import { KeyIcon } from '@components/Icons';
+import { Plus, Trash, Copy } from '@moondreamsdev/dreamer-ui/symbols';
+import { KeyIcon, EyeIcon, EyeOffIcon, EditIcon } from '@components/Icons';
 import { CalypsoLogoWithText } from '@components/Logo';
 
 export default function Passwords() {
@@ -263,62 +263,64 @@ export default function Passwords() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {passwords.map((password) => (
-              <Card
+              <div
                 key={password.id}
-                className="relative group hover:border-primary transition-colors cursor-pointer"
                 onClick={() => handleView(password)}
+                className="cursor-pointer"
               >
-                <div className="p-4 space-y-3">
-                  <div className="flex items-center justify-center text-foreground/70">
-                    <KeyIcon className="w-12 h-12" />
+                <Card className="relative group hover:border-primary transition-colors">
+                  <div className="p-4 space-y-3">
+                    <div className="flex items-center justify-center text-foreground/70">
+                      <KeyIcon className="w-12 h-12" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-mono truncate uppercase tracking-wider" title={password.metadata.name}>
+                        {password.metadata.name}
+                      </p>
+                      <p className="text-xs text-foreground/50 font-mono">
+                        {new Date(password.metadata.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-mono truncate uppercase tracking-wider" title={password.metadata.name}>
-                      {password.metadata.name}
-                    </p>
-                    <p className="text-xs text-foreground/50 font-mono">
-                      {new Date(password.metadata.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Action buttons */}
-                <div
-                  className={join(
-                    'absolute top-2 right-2 flex gap-1',
-                    'opacity-0 group-hover:opacity-100 transition-opacity'
-                  )}
-                >
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditClick(password);
-                    }}
+                  {/* Action buttons */}
+                  <div
                     className={join(
-                      'p-2 rounded-md',
-                      'bg-primary/10 text-primary',
-                      'hover:bg-primary/20'
+                      'absolute top-2 right-2 flex gap-1',
+                      'opacity-0 group-hover:opacity-100 transition-opacity'
                     )}
-                    title="Edit"
                   >
-                    <Edit size={14} />
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(password.id, password.metadata.name);
-                    }}
-                    className={join(
-                      'p-2 rounded-md',
-                      'bg-destructive/10 text-destructive',
-                      'hover:bg-destructive/20'
-                    )}
-                    title="Delete"
-                  >
-                    <Trash size={14} />
-                  </button>
-                </div>
-              </Card>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditClick(password);
+                      }}
+                      className={join(
+                        'p-2 rounded-md',
+                        'bg-primary/10 text-primary',
+                        'hover:bg-primary/20'
+                      )}
+                      title="Edit"
+                    >
+                      <EditIcon className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(password.id, password.metadata.name);
+                      }}
+                      className={join(
+                        'p-2 rounded-md',
+                        'bg-destructive/10 text-destructive',
+                        'hover:bg-destructive/20'
+                      )}
+                      title="Delete"
+                    >
+                      <Trash size={14} />
+                    </button>
+                  </div>
+                </Card>
+              </div>
             ))}
           </div>
         )}
@@ -385,7 +387,7 @@ export default function Passwords() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground"
                 type="button"
               >
-                {showPasswordField ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPasswordField ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
               </button>
             </div>
           </div>
@@ -549,7 +551,7 @@ export default function Passwords() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground"
                 type="button"
               >
-                {showPasswordField ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPasswordField ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
               </button>
             </div>
           </div>

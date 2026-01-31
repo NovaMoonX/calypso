@@ -11,7 +11,7 @@ import { useVault } from '@hooks/useVault';
 import { useAuth } from '@hooks/useAuth';
 import { VaultItem } from '@lib/types/vault.types';
 import { Plus, ChevronLeft, Trash } from '@moondreamsdev/dreamer-ui/symbols';
-import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon, KeyIcon } from '@components/Icons';
+import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@components/Icons';
 import { CalypsoLogoWithText } from '@components/Logo';
 
 export function Dashboard() {
