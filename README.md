@@ -292,7 +292,7 @@ Calypso features a unique monochrome security theme designed for a professional,
 - Click the theme toggle button in the top-left corner
 - Switches between light and dark modes
 - Preference saved in browser localStorage
-- **Default**: Light mode
+- **Default**: Dark mode
 
 ## Firestore Security Rules
 
