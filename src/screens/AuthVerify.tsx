@@ -12,6 +12,7 @@ import {
   isTabActive,
   notifyAuthVerified,
   closeCurrentTab,
+  TAB_ID_PARAM,
 } from '@utils/tabCommunication';
 
 // Timing constants for tab closing behavior
@@ -39,7 +40,7 @@ export function AuthVerify() {
         const redirectPath = '/auth/passphrase';
         
         // Extract the tab ID from the URL (if present)
-        const targetTabId = searchParams.get('tabId');
+        const targetTabId = searchParams.get(TAB_ID_PARAM);
 
         if (targetTabId) {
           // Check if the original tab is still active

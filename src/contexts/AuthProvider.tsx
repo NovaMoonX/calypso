@@ -11,6 +11,7 @@ import { auth } from '@lib/firebase/FirebaseConfig';
 import { AuthContext } from '@hooks/useAuth';
 import { EncryptionService } from '@/services/EncryptionService';
 import { UserSettingsService } from '@/services/UserSettingsService';
+import { TAB_ID_PARAM } from '@utils/tabCommunication';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -46,7 +47,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const sendSignInLink = async (email: string, tabId?: string) => {
     const actionCodeSettings = {
-      url: `${window.location.origin}/auth/verify${tabId ? `?tabId=${tabId}` : ''}`,
+      url: `${window.location.origin}/auth/verify${tabId ? `?${TAB_ID_PARAM}=${tabId}` : ''}`,
       handleCodeInApp: true,
     };
 

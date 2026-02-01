@@ -7,6 +7,11 @@ const CHANNEL_NAME = 'calypso-auth';
 const TAB_ID_KEY = 'calypso-tab-id';
 const ACTIVE_TABS_KEY = 'calypso-active-tabs';
 
+/**
+ * URL query parameter name for tab ID
+ */
+export const TAB_ID_PARAM = 'tabId';
+
 export interface AuthMessage {
   type: 'AUTH_VERIFIED' | 'TAB_PING';
   targetTabId?: string;
