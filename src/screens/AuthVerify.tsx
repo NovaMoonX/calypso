@@ -16,14 +16,16 @@ import {
 } from '@utils/tabCommunication';
 
 // Timing constants for tab closing behavior
-const MESSAGE_SEND_DELAY_MS = 500;
 const TAB_CLOSE_FALLBACK_DELAY_MS = 1500;
+const AUTO_CLOSE_COUNTDOWN_SECONDS = 10;
 
 export function AuthVerify() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailInput, setEmailInput] = useState('');
+  const [showCountdown, setShowCountdown] = useState(false);
+  const [countdown, setCountdown] = useState(AUTO_CLOSE_COUNTDOWN_SECONDS);
   const { signInWithEmailLink } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -47,19 +49,30 @@ export function AuthVerify() {
           const tabStillActive = await isTabActive(targetTabId);
           
           if (tabStillActive) {
-            // Original tab is still open - redirect it and close this tab
+            // Original tab is still open - show countdown before closing
+            setLoading(false);
+            setShowCountdown(true);
+            
+            // Notify the original tab immediately
             notifyAuthVerified(targetTabId, redirectPath);
 
-            // Wait a moment for the message to be sent
-            await new Promise((resolve) => setTimeout(resolve, MESSAGE_SEND_DELAY_MS));
-
-            // Attempt to close this tab
-            closeCurrentTab();
-
-            // Wait a bit to give the browser a chance to close the tab
-            // If the tab doesn't close, navigate anyway as a fallback
-            await new Promise((resolve) => setTimeout(resolve, TAB_CLOSE_FALLBACK_DELAY_MS));
-            navigate(redirectPath);
+            // Start countdown and close after it reaches 0
+            let timeLeft = AUTO_CLOSE_COUNTDOWN_SECONDS;
+            const countdownInterval = setInterval(() => {
+              timeLeft -= 1;
+              setCountdown(timeLeft);
+              
+              if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
+                // Attempt to close this tab
+                closeCurrentTab();
+                
+                // If tab doesn't close, navigate as fallback
+                setTimeout(() => {
+                  navigate(redirectPath);
+                }, TAB_CLOSE_FALLBACK_DELAY_MS);
+              }
+            }, 1000);
           } else {
             // Original tab is gone - continue in this tab
             navigate(redirectPath);
@@ -145,6 +158,33 @@ export function AuthVerify() {
               <p className='text-foreground/70 font-mono text-sm'>
                 PLEASE WAIT WHILE WE VERIFY YOUR EMAIL
               </p>
+            </div>
+          </div>
+        ) : showCountdown ? (
+          <div className='space-y-6'>
+            <div className='flex justify-center'>
+              <CalypsoLogo size={80} />
+            </div>
+            <div className='space-y-4'>
+              <h1 className='text-primary font-mono text-3xl font-bold tracking-wider'>
+                VERIFIED!
+              </h1>
+              <div className='rounded-lg border border-border bg-card p-6 space-y-4'>
+                <p className='text-foreground font-mono text-lg'>
+                  Your email has been verified successfully.
+                </p>
+                <p className='text-foreground/70 font-mono text-sm'>
+                  Please return to your original tab to continue.
+                </p>
+                <div className='flex items-center justify-center gap-3 py-4'>
+                  <div className='text-primary font-mono text-6xl font-bold'>
+                    {countdown}
+                  </div>
+                </div>
+                <p className='text-foreground/50 font-mono text-xs'>
+                  This tab will close automatically in {countdown} second{countdown !== 1 ? 's' : ''}
+                </p>
+              </div>
             </div>
           </div>
         ) : error ? (
