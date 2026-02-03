@@ -16,7 +16,6 @@ import {
 } from '@utils/tabCommunication';
 
 // Timing constants for tab closing behavior
-const TAB_CLOSE_FALLBACK_DELAY_MS = 1500;
 const AUTO_CLOSE_COUNTDOWN_SECONDS = 10;
 
 export function AuthVerify() {
@@ -67,10 +66,9 @@ export function AuthVerify() {
                 // Attempt to close this tab
                 closeCurrentTab();
                 
-                // If tab doesn't close, navigate as fallback
-                setTimeout(() => {
-                  navigate(redirectPath);
-                }, TAB_CLOSE_FALLBACK_DELAY_MS);
+                // Don't navigate as fallback - keep showing the countdown screen
+                // The user has been instructed to return to the original tab
+                // If the browser prevents tab closing, they can manually close it
               }
             }, 1000);
           } else {
@@ -176,14 +174,24 @@ export function AuthVerify() {
                 <p className='text-foreground/70 font-mono text-sm'>
                   Please return to your original tab to continue.
                 </p>
-                <div className='flex items-center justify-center gap-3 py-4'>
-                  <div className='text-primary font-mono text-6xl font-bold'>
-                    {countdown}
+                {countdown > 0 ? (
+                  <>
+                    <div className='flex items-center justify-center gap-3 py-4'>
+                      <div className='text-primary font-mono text-6xl font-bold'>
+                        {countdown}
+                      </div>
+                    </div>
+                    <p className='text-foreground/50 font-mono text-xs'>
+                      This tab will close automatically in {countdown} second{countdown !== 1 ? 's' : ''}
+                    </p>
+                  </>
+                ) : (
+                  <div className='py-4'>
+                    <p className='text-foreground/70 font-mono text-sm'>
+                      You can now close this tab manually.
+                    </p>
                   </div>
-                </div>
-                <p className='text-foreground/50 font-mono text-xs'>
-                  This tab will close automatically in {countdown} second{countdown !== 1 ? 's' : ''}
-                </p>
+                )}
               </div>
             </div>
           </div>
