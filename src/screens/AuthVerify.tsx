@@ -1,33 +1,72 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button } from '@moondreamsdev/dreamer-ui/components';
-import { Modal } from '@moondreamsdev/dreamer-ui/components';
-import { Input } from '@moondreamsdev/dreamer-ui/components';
-import { useAuth } from '@hooks/useAuth';
+import { EMAIL_FOR_SIGN_IN_KEY } from '@/contexts/AuthProvider';
 import { CalypsoLogo } from '@components/Logo';
-import { isSignInWithEmailLink } from 'firebase/auth';
+import { useAuth } from '@hooks/useAuth';
 import { auth } from '@lib/firebase/FirebaseConfig';
-import { FirebaseError } from 'firebase/app';
+import { Button, Input, Modal } from '@moondreamsdev/dreamer-ui/components';
 import {
+  closeCurrentTab,
   isTabActive,
   notifyAuthVerified,
-  closeCurrentTab,
   TAB_ID_PARAM,
 } from '@utils/tabCommunication';
+import { FirebaseError } from 'firebase/app';
+import { isSignInWithEmailLink } from 'firebase/auth';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 // Timing constants for tab closing behavior
 const AUTO_CLOSE_COUNTDOWN_SECONDS = 10;
+const REDIRECT_COUNTDOWN_SECONDS = 5;
 
 export function AuthVerify() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailInput, setEmailInput] = useState('');
-  const [showCountdown, setShowCountdown] = useState(false);
-  const [countdown, setCountdown] = useState(AUTO_CLOSE_COUNTDOWN_SECONDS);
+  const [closeCountdown, setCloseCountdown] = useState<number | undefined>();
+  const [redirectCountdown, setRedirectCountdown] = useState<
+    number | undefined
+  >();
   const { signInWithEmailLink } = useAuth();
+  const targetTabIdRef = useRef<string | null>(null);
+  const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const targetTabId = searchParams.get(TAB_ID_PARAM);
+
+  const handleCountdown = useCallback(
+    (
+      setter: React.Dispatch<React.SetStateAction<number | undefined>>,
+      countdown: number,
+      onComplete: () => void,
+    ) => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+
+      let timeLeft = countdown;
+      setter(timeLeft);
+
+      const intervalId = setInterval(() => {
+        timeLeft -= 1;
+        const nextValue = Math.max(timeLeft, 0);
+        setter(nextValue);
+
+        if (nextValue <= 0) {
+          clearInterval(intervalId);
+          countdownIntervalRef.current = null;
+          onComplete();
+        }
+      }, 1000);
+
+      countdownIntervalRef.current = intervalId;
+    },
+    [],
+  );
 
   const verifyEmail = useCallback(
     async (email: string) => {
@@ -39,45 +78,43 @@ export function AuthVerify() {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const redirectPath = '/auth/passphrase';
-        
-        // Extract the tab ID from the URL (if present)
-        const targetTabId = searchParams.get(TAB_ID_PARAM);
 
-        if (targetTabId) {
+        const targetTabIdValue = targetTabIdRef.current;
+        if (targetTabIdValue) {
           // Check if the original tab is still active
-          const tabStillActive = await isTabActive(targetTabId);
-          
-          if (tabStillActive) {
-            // Original tab is still open - show countdown before closing
-            setLoading(false);
-            setShowCountdown(true);
-            
-            // Notify the original tab immediately
-            notifyAuthVerified(targetTabId, redirectPath);
+          const tabStillActive = await isTabActive(targetTabIdValue);
 
-            // Start countdown and close after it reaches 0
-            let timeLeft = AUTO_CLOSE_COUNTDOWN_SECONDS;
-            const countdownInterval = setInterval(() => {
-              timeLeft -= 1;
-              setCountdown(timeLeft);
-              
-              if (timeLeft <= 0) {
-                clearInterval(countdownInterval);
+          if (tabStillActive) {
+            // Notify the original tab immediately
+            notifyAuthVerified(targetTabIdValue, redirectPath);
+
+            setLoading(false);
+            handleCountdown(
+              setCloseCountdown,
+              AUTO_CLOSE_COUNTDOWN_SECONDS,
+              () => {
                 // Attempt to close this tab
                 closeCurrentTab();
-                
+
                 // Don't navigate as fallback - keep showing the countdown screen
                 // The user has been instructed to return to the original tab
                 // If the browser prevents tab closing, they can manually close it
-              }
-            }, 1000);
+              },
+            );
           } else {
-            // Original tab is gone - continue in this tab
-            navigate(redirectPath);
+            setLoading(false);
+            handleCountdown(
+              setRedirectCountdown,
+              REDIRECT_COUNTDOWN_SECONDS,
+              () => {
+                // Original tab is gone - continue in this tab
+                navigate(redirectPath);
+              },
+            );
           }
         } else {
           // No tab ID provided (shouldn't happen with new flow, but handle gracefully)
-          // Just navigate in the current tab
+          // Just navigate in the current ta
           navigate(redirectPath);
         }
       } catch (error: unknown) {
@@ -101,8 +138,21 @@ export function AuthVerify() {
         setLoading(false);
       }
     },
-    [signInWithEmailLink, navigate, searchParams],
+    [signInWithEmailLink, navigate, handleCountdown],
   );
+
+  useEffect(() => {
+    targetTabIdRef.current = targetTabId;
+  }, [targetTabId]);
+
+  useEffect(() => {
+    return () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const checkEmail = async () => {
@@ -116,7 +166,7 @@ export function AuthVerify() {
         return;
       }
 
-      const storedEmail = window.localStorage.getItem('emailForSignIn');
+      const storedEmail = window.localStorage.getItem(EMAIL_FOR_SIGN_IN_KEY);
 
       if (!storedEmail) {
         // Only show modal if we don't have stored email
@@ -158,7 +208,7 @@ export function AuthVerify() {
               </p>
             </div>
           </div>
-        ) : showCountdown ? (
+        ) : closeCountdown !== undefined ? (
           <div className='space-y-6'>
             <div className='flex justify-center'>
               <CalypsoLogo size={80} />
@@ -167,22 +217,24 @@ export function AuthVerify() {
               <h1 className='text-primary font-mono text-3xl font-bold tracking-wider'>
                 VERIFIED!
               </h1>
-              <div className='rounded-lg border border-border bg-card p-6 space-y-4'>
+              <div className='border-border bg-card space-y-4 rounded-lg border p-6'>
                 <p className='text-foreground font-mono text-lg'>
                   Your email has been verified successfully.
                 </p>
                 <p className='text-foreground/70 font-mono text-sm'>
                   Please return to your original tab to continue.
                 </p>
-                {countdown > 0 ? (
+                {closeCountdown > 0 ? (
                   <>
                     <div className='flex items-center justify-center gap-3 py-4'>
                       <div className='text-primary font-mono text-6xl font-bold'>
-                        {countdown}
+                        {closeCountdown}
                       </div>
                     </div>
                     <p className='text-foreground/50 font-mono text-xs'>
-                      This tab will close automatically in {countdown} second{countdown !== 1 ? 's' : ''}
+                      This tab will close automatically in {closeCountdown}{' '}
+                      second
+                      {closeCountdown !== 1 ? 's' : ''}
                     </p>
                   </>
                 ) : (
@@ -192,6 +244,26 @@ export function AuthVerify() {
                     </p>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        ) : redirectCountdown !== undefined ? (
+          <div className='space-y-6'>
+            <div className='flex justify-center'>
+              <CalypsoLogo size={80} />
+            </div>
+            <div className='space-y-4'>
+              <h1 className='text-primary font-mono text-3xl font-bold tracking-wider'>
+                VERIFIED!
+              </h1>
+              <div className='border-border bg-card space-y-4 rounded-lg border p-6'>
+                <p className='text-foreground font-mono text-lg'>
+                  Your email has been verified successfully.
+                </p>
+                <p className='text-foreground/70 font-mono text-sm'>
+                  Redirecting you in {redirectCountdown} second
+                  {redirectCountdown !== 1 ? 's' : ''}
+                </p>
               </div>
             </div>
           </div>
@@ -219,7 +291,29 @@ export function AuthVerify() {
               </div>
             </div>
           </div>
-        ) : null}
+        ) : (
+          <div className='space-y-6'>
+            <div className='flex justify-center'>
+              <CalypsoLogo size={80} />
+            </div>
+            <div className='space-y-4'>
+              <h1 className='text-destructive font-mono text-2xl font-bold tracking-wider'>
+                SOMETHING WENT WRONG
+              </h1>
+              <p className='text-foreground/70 font-mono text-sm'>
+                Head back to the login page and try again.
+              </p>
+              <div className='space-y-2'>
+                <Button
+                  href='/login'
+                  className='w-full font-mono tracking-wider'
+                >
+                  RETURN TO LOGIN
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Email Confirmation Modal */}

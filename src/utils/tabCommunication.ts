@@ -57,7 +57,7 @@ export function registerTab(): void {
 export function unregisterTab(): void {
   const tabId = getTabId();
   const activeTabs = getActiveTabs();
-  const filtered = activeTabs.filter(id => id !== tabId);
+  const filtered = activeTabs.filter((id) => id !== tabId);
   localStorage.setItem(ACTIVE_TABS_KEY, JSON.stringify(filtered));
 }
 
@@ -79,7 +79,7 @@ function getActiveTabs(): string[] {
 export function isTabActive(tabId: string): Promise<boolean> {
   return new Promise((resolve) => {
     const activeTabs = getActiveTabs();
-    
+
     // Quick check: if not in the list, it's definitely not active
     if (!activeTabs.includes(tabId)) {
       resolve(false);
@@ -92,7 +92,7 @@ export function isTabActive(tabId: string): Promise<boolean> {
       if (!responded) {
         resolve(false);
       }
-    }, 500);
+    }, 1500);
 
     const cleanup = listenForTabResponse((message) => {
       if (message.type === 'TAB_PING' && message.responderId === tabId) {
@@ -116,7 +116,7 @@ export function isTabActive(tabId: string): Promise<boolean> {
     // Fallback: localStorage ping
     localStorage.setItem(
       'calypso-tab-ping',
-      JSON.stringify({ targetTabId: tabId, timestamp: Date.now() })
+      JSON.stringify({ targetTabId: tabId, timestamp: Date.now() }),
     );
     setTimeout(() => localStorage.removeItem('calypso-tab-ping'), 100);
   });
@@ -126,7 +126,7 @@ export function isTabActive(tabId: string): Promise<boolean> {
  * Listen for tab ping responses (internal helper)
  */
 function listenForTabResponse(
-  callback: (message: AuthMessage) => void
+  callback: (message: AuthMessage) => void,
 ): () => void {
   const cleanupFunctions: Array<() => void> = [];
 
@@ -163,7 +163,10 @@ function listenForTabResponse(
 /**
  * Send authentication verified message to a specific tab
  */
-export function notifyAuthVerified(targetTabId: string, redirectTo: string): void {
+export function notifyAuthVerified(
+  targetTabId: string,
+  redirectTo: string,
+): void {
   // Use BroadcastChannel for modern browsers
   if (typeof BroadcastChannel !== 'undefined') {
     const channel = new BroadcastChannel(CHANNEL_NAME);
@@ -214,7 +217,10 @@ export function listenForAuthVerified(
 
       if (isAuthVerifiedForThisTab) {
         callback(event.data.redirectTo!);
-      } else if (event.data.type === 'TAB_PING' && event.data.targetTabId === myTabId) {
+      } else if (
+        event.data.type === 'TAB_PING' &&
+        event.data.targetTabId === myTabId
+      ) {
         // Respond to ping requests
         const response: AuthMessage = {
           type: 'TAB_PING',
@@ -248,7 +254,7 @@ export function listenForAuthVerified(
           // Respond to ping via localStorage
           localStorage.setItem(
             'calypso-tab-pong',
-            JSON.stringify({ responderId: myTabId, timestamp: Date.now() })
+            JSON.stringify({ responderId: myTabId, timestamp: Date.now() }),
           );
           setTimeout(() => localStorage.removeItem('calypso-tab-pong'), 100);
         }
