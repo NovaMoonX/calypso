@@ -42,7 +42,7 @@ export function Login() {
   return (
     <div className='page flex items-center justify-center'>
       {/* Top navigation links */}
-      <div className='fixed top-4 left-4 sm:left-20 z-40 flex gap-3 sm:gap-4'>
+      <div className='fixed top-4 left-1/2 -translate-x-1/2 sm:left-4 sm:translate-x-0 z-40 flex gap-3 sm:gap-4'>
         <Link
           to='/why-use'
           className={join(

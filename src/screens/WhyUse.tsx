@@ -5,6 +5,9 @@ import {
   SimplicityIllustration,
   ControlIllustration,
   NoLockInIllustration,
+  PersonalDocumentsIllustration,
+  CreativeWorkIllustration,
+  FamilyMemoriesIllustration,
 } from '@components/WhyUseIllustrations';
 
 interface BenefitCardProps {
@@ -29,6 +32,43 @@ function BenefitCard({ illustration, title, description }: BenefitCardProps) {
   );
 }
 
+interface UseCaseCardProps {
+  illustration: React.ReactNode;
+  title: string;
+  description: string;
+  examples: string[];
+}
+
+function UseCaseCard({ illustration, title, description, examples }: UseCaseCardProps) {
+  return (
+    <div className={join(
+      'border-border bg-card rounded-lg border p-6 space-y-4',
+      'hover:border-foreground/30 transition-colors'
+    )}>
+      <div className="flex justify-center">
+        {illustration}
+      </div>
+      <h3 className="font-mono font-bold tracking-wider uppercase text-sm">
+        {title}
+      </h3>
+      <p className="text-foreground/70 font-mono text-xs leading-relaxed">
+        {description}
+      </p>
+      <div className="space-y-1.5">
+        <p className="text-foreground/50 font-mono text-xs uppercase tracking-wider">Examples:</p>
+        <ul className="space-y-1 font-mono text-xs text-foreground/60">
+          {examples.map((example, idx) => (
+            <li key={idx} className="flex items-start gap-2">
+              <span className="text-foreground/40 mt-0.5">•</span>
+              <span>{example}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 export function WhyUse() {
   return (
     <div className="page overflow-y-auto">
@@ -37,11 +77,11 @@ export function WhyUse() {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="font-mono text-4xl md:text-5xl font-bold tracking-wider uppercase">
-              Why Choose Calypso?
+              Why Use Calypso?
             </h1>
             <p className="text-foreground/70 font-mono text-lg max-w-3xl mx-auto">
-              Your data deserves better than traditional cloud storage.
-              Here's why Calypso is the superior choice for your sensitive digital materials.
+              We're not asking you to replace Google Drive or iCloud. 
+              We're here for the things you'd never want to store there.
             </p>
           </div>
 
@@ -75,66 +115,99 @@ export function WhyUse() {
           {/* Comparison Section */}
           <div className="border-border bg-card rounded-lg border p-8 space-y-6">
             <h2 className="font-mono text-2xl font-bold tracking-wider uppercase text-center">
-              How We're Different
+              Why Not Just Use Google Drive?
             </h2>
+            
+            <p className="text-foreground/70 font-mono text-sm text-center max-w-2xl mx-auto">
+              Traditional cloud providers offer amazing features like AI-powered search, collaboration tools, and seamless integration. 
+              They're perfect for everyday files. But for your most sensitive data, the trade-off is privacy.
+            </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Traditional Cloud */}
               <div className="space-y-3">
-                <h3 className="font-mono font-bold tracking-wider uppercase text-foreground/50">
+                <h3 className="font-mono font-bold tracking-wider uppercase text-foreground/70">
                   Traditional Cloud Storage
                 </h3>
-                <ul className="space-y-2 font-mono text-sm text-foreground/60">
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground/40 mt-1">•</span>
-                    <span>Provider can access your files</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground/40 mt-1">•</span>
-                    <span>Subject to data mining and ads</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground/40 mt-1">•</span>
-                    <span>Government requests for your data</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground/40 mt-1">•</span>
-                    <span>Complex privacy policies</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground/40 mt-1">•</span>
-                    <span>Lock-in to their ecosystem</span>
-                  </li>
-                </ul>
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Great For:</p>
+                    <ul className="space-y-1.5 font-mono text-sm text-foreground/50">
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground/30 mt-1">•</span>
+                        <span>Sharing files with others</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground/30 mt-1">•</span>
+                        <span>AI-powered features (search, OCR)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground/30 mt-1">•</span>
+                        <span>Cross-device sync and convenience</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Privacy Trade-offs:</p>
+                    <ul className="space-y-1.5 font-mono text-sm text-foreground/60">
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground/40 mt-1">•</span>
+                        <span>Provider can access your files</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground/40 mt-1">•</span>
+                        <span>Data may be scanned for ads/AI training</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground/40 mt-1">•</span>
+                        <span>Subject to government data requests</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
 
               {/* Calypso */}
               <div className="space-y-3">
                 <h3 className="font-mono font-bold tracking-wider uppercase">
-                  Calypso (Zero-Knowledge)
+                  Calypso (Zero-Knowledge Vault)
                 </h3>
-                <ul className="space-y-2 font-mono text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground mt-1">✓</span>
-                    <span>Only you can decrypt your data</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground mt-1">✓</span>
-                    <span>No data mining - we can't see it</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground mt-1">✓</span>
-                    <span>Nothing to hand over to anyone</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground mt-1">✓</span>
-                    <span>Simple: what you see is what you get</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-foreground mt-1">✓</span>
-                    <span>Your data is portable and yours</span>
-                  </li>
-                </ul>
+                <div className="space-y-4">
+                  <div>
+                    <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Specialized For:</p>
+                    <ul className="space-y-1.5 font-mono text-sm">
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground mt-1">✓</span>
+                        <span>Your most sensitive documents</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground mt-1">✓</span>
+                        <span>Items you'd never want exposed</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground mt-1">✓</span>
+                        <span>Data requiring complete privacy</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Privacy Guarantees:</p>
+                    <ul className="space-y-1.5 font-mono text-sm">
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground mt-1">✓</span>
+                        <span>Only you can decrypt your data</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground mt-1">✓</span>
+                        <span>We literally can't see your files</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-foreground mt-1">✓</span>
+                        <span>Even we can't hand over readable data</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -142,43 +215,121 @@ export function WhyUse() {
           {/* Use Cases */}
           <div className="space-y-8">
             <h2 className="font-mono text-2xl font-bold tracking-wider uppercase text-center">
-              Perfect For
+              What Should You Store Here?
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className={join(
-                'border-border bg-card rounded-lg border p-6 space-y-2',
-                'hover:border-foreground/30 transition-colors'
-              )}>
+              <UseCaseCard
+                illustration={<PersonalDocumentsIllustration />}
+                title="Sensitive Documents"
+                description="Items you'd never want exposed in a data breach or scanned by AI."
+                examples={[
+                  "Social Security card scans",
+                  "Passport copies",
+                  "Recovery codes for accounts",
+                  "Crypto wallet seed phrases",
+                  "Medical records & test results",
+                  "Tax returns & financial docs",
+                  "Legal contracts & wills"
+                ]}
+              />
+
+              <UseCaseCard
+                illustration={<CreativeWorkIllustration />}
+                title="Private Creative Work"
+                description="Your unpublished work that you want to keep completely private."
+                examples={[
+                  "Unpublished manuscripts",
+                  "Private journal entries",
+                  "Original photography",
+                  "Unannounced projects",
+                  "Personal art & designs",
+                  "Music compositions",
+                  "Business ideas & plans"
+                ]}
+              />
+
+              <UseCaseCard
+                illustration={<FamilyMemoriesIllustration />}
+                title="Personal Memories"
+                description="Precious moments you don't want analyzed, tagged, or used for AI training."
+                examples={[
+                  "Private family photos",
+                  "Home videos of children",
+                  "Personal voice recordings",
+                  "Intimate celebrations",
+                  "Private correspondence",
+                  "Memorial tributes",
+                  "Personal milestones"
+                ]}
+              />
+            </div>
+          </div>
+
+          {/* CLOUD Act Section */}
+          <div className="border-border bg-card rounded-lg border p-8 space-y-6">
+            <h2 className="font-mono text-2xl font-bold tracking-wider uppercase text-center">
+              What About Government Requests?
+            </h2>
+            
+            <div className="space-y-4 max-w-4xl mx-auto">
+              <div className="space-y-3">
                 <h3 className="font-mono font-bold tracking-wider uppercase text-sm">
-                  Personal Documents
+                  The CLOUD Act Reality
                 </h3>
-                <p className="text-foreground/70 font-mono text-xs leading-relaxed">
-                  Store passwords, private keys, medical records, legal documents, and other sensitive information you don't want on corporate servers.
+                <p className="text-foreground/70 font-mono text-sm leading-relaxed">
+                  The Clarifying Lawful Overseas Use of Data (CLOUD) Act allows U.S. law enforcement to compel 
+                  U.S.-based providers like Google to hand over data they control, regardless of where servers are located.
                 </p>
               </div>
 
-              <div className={join(
-                'border-border bg-card rounded-lg border p-6 space-y-2',
-                'hover:border-foreground/30 transition-colors'
-              )}>
-                <h3 className="font-mono font-bold tracking-wider uppercase text-sm">
-                  Creative Work
-                </h3>
-                <p className="text-foreground/70 font-mono text-xs leading-relaxed">
-                  Keep your unpublished writings, photos, videos, and creative projects private until you're ready to share them on your terms.
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <h3 className="font-mono font-bold tracking-wider uppercase text-xs text-foreground/70">
+                    What Google Must Provide
+                  </h3>
+                  <ul className="space-y-2 font-mono text-xs text-foreground/60">
+                    <li className="flex items-start gap-2">
+                      <span className="text-foreground/40 mt-0.5">•</span>
+                      <span>All encrypted data in Firebase Storage</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-foreground/40 mt-0.5">•</span>
+                      <span>Encrypted metadata and wrapped keys in Firestore</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-foreground/40 mt-0.5">•</span>
+                      <span>User logs (IP addresses, login times)</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-mono font-bold tracking-wider uppercase text-xs text-foreground">
+                    What They Actually Get
+                  </h3>
+                  <ul className="space-y-2 font-mono text-xs">
+                    <li className="flex items-start gap-2">
+                      <span className="text-foreground mt-0.5">✓</span>
+                      <span><strong>Ciphertext</strong> — encrypted, unreadable data</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-foreground mt-0.5">✓</span>
+                      <span><strong>No decryption keys</strong> — those are on your device</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-foreground mt-0.5">✓</span>
+                      <span><strong>Useless without your passphrase</strong> — which we never see</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
 
-              <div className={join(
-                'border-border bg-card rounded-lg border p-6 space-y-2',
-                'hover:border-foreground/30 transition-colors'
-              )}>
-                <h3 className="font-mono font-bold tracking-wider uppercase text-sm">
-                  Family Memories
-                </h3>
+              <div className="border-border bg-background/50 rounded border p-4">
                 <p className="text-foreground/70 font-mono text-xs leading-relaxed">
-                  Archive personal photos and videos without worrying about them being scanned, analyzed, or used for AI training by tech companies.
+                  <strong className="text-foreground">The Bottom Line:</strong> The CLOUD Act doesn't require companies to build backdoors 
+                  or decrypt data they can't access. Your Master Key is derived on your device and never transmitted. 
+                  Google would hand over gibberish — mathematically useless without your passphrase.
                 </p>
               </div>
             </div>

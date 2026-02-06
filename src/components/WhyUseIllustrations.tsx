@@ -337,3 +337,247 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
     </svg>
   );
 }
+
+/**
+ * Personal Documents illustration
+ * Depicts important documents like ID cards and certificates
+ */
+export function PersonalDocumentsIllustration({ className = 'w-32 h-32' }: IllustrationProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Document card background */}
+      <rect
+        x="50"
+        y="60"
+        width="100"
+        height="80"
+        rx="4"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="currentColor"
+        fillOpacity="0.05"
+      />
+      
+      {/* ID photo placeholder */}
+      <rect
+        x="60"
+        y="75"
+        width="25"
+        height="30"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="currentColor"
+        fillOpacity="0.1"
+      />
+      
+      {/* Person silhouette in photo */}
+      <circle
+        cx="72.5"
+        cy="85"
+        r="5"
+        fill="currentColor"
+        opacity="0.3"
+      />
+      <path
+        d="M65 97 Q65 92, 72.5 92 Q80 92, 80 97"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
+      
+      {/* Text lines (info fields) */}
+      <rect x="95" y="77" width="45" height="3" rx="1.5" fill="currentColor" opacity="0.4" />
+      <rect x="95" y="87" width="35" height="3" rx="1.5" fill="currentColor" opacity="0.3" />
+      <rect x="95" y="97" width="40" height="3" rx="1.5" fill="currentColor" opacity="0.3" />
+      
+      {/* Shield with lock (security indicator) */}
+      <g transform="translate(60, 115)">
+        <path
+          d="M10 0 L16 2 L16 8 C16 12, 13 15, 10 17 C7 15, 4 12, 4 8 L4 2 Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <rect x="8.5" y="8" width="3" height="4" rx="0.5" fill="currentColor" opacity="0.6" />
+        <path
+          d="M8.5 8 V6.5 C8.5 5.7, 9.2 5, 10 5 C10.8 5, 11.5 5.7, 11.5 6.5 V8"
+          stroke="currentColor"
+          strokeWidth="1.2"
+          fill="none"
+        />
+      </g>
+      
+      {/* Document corner fold */}
+      <path
+        d="M145 60 L145 70 L155 60 Z"
+        fill="currentColor"
+        opacity="0.15"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Creative Work illustration
+ * Depicts artistic/creative tools and content
+ */
+export function CreativeWorkIllustration({ className = 'w-32 h-32' }: IllustrationProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Canvas/artboard */}
+      <rect
+        x="55"
+        y="55"
+        width="90"
+        height="90"
+        rx="4"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="currentColor"
+        fillOpacity="0.05"
+      />
+      
+      {/* Brush stroke - abstract creative mark */}
+      <path
+        d="M70 80 Q85 95, 100 85 T130 95"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        opacity="0.4"
+        fill="none"
+      />
+      
+      {/* Photo/image frame */}
+      <rect
+        x="70"
+        y="105"
+        width="30"
+        height="25"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+        opacity="0.5"
+      />
+      
+      {/* Mountain/landscape in frame */}
+      <path
+        d="M72 126 L80 115 L88 122 L98 112"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.4"
+      />
+      <circle cx="76" cy="112" r="2" fill="currentColor" opacity="0.4" />
+      
+      {/* Text/writing lines */}
+      <rect x="110" y="108" width="25" height="2" rx="1" fill="currentColor" opacity="0.35" />
+      <rect x="110" y="115" width="20" height="2" rx="1" fill="currentColor" opacity="0.35" />
+      <rect x="110" y="122" width="22" height="2" rx="1" fill="currentColor" opacity="0.35" />
+      
+      {/* Creative spark/star */}
+      <path
+        d="M135 70 L137 75 L142 77 L137 79 L135 84 L133 79 L128 77 L133 75 Z"
+        fill="currentColor"
+        opacity="0.5"
+      />
+    </svg>
+  );
+}
+
+/**
+ * Family Memories illustration
+ * Depicts photos and precious family moments
+ */
+export function FamilyMemoriesIllustration({ className = 'w-32 h-32' }: IllustrationProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Photo frame */}
+      <rect
+        x="50"
+        y="60"
+        width="100"
+        height="80"
+        rx="3"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="currentColor"
+        fillOpacity="0.05"
+      />
+      
+      {/* Inner photo area */}
+      <rect
+        x="58"
+        y="68"
+        width="84"
+        height="64"
+        rx="2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        opacity="0.4"
+      />
+      
+      {/* Family members (simple silhouettes) */}
+      {/* Person 1 - larger (adult) */}
+      <g transform="translate(75, 85)">
+        <circle cx="0" cy="0" r="8" fill="currentColor" opacity="0.3" />
+        <path
+          d="M-10 18 Q-10 8, 0 8 Q10 8, 10 18"
+          stroke="currentColor"
+          strokeWidth="2"
+          fill="none"
+          opacity="0.3"
+        />
+      </g>
+      
+      {/* Person 2 - larger (adult) */}
+      <g transform="translate(100, 85)">
+        <circle cx="0" cy="0" r="8" fill="currentColor" opacity="0.3" />
+        <path
+          d="M-10 18 Q-10 8, 0 8 Q10 8, 10 18"
+          stroke="currentColor"
+          strokeWidth="2"
+          fill="none"
+          opacity="0.3"
+        />
+      </g>
+      
+      {/* Person 3 - smaller (child) */}
+      <g transform="translate(125, 92)">
+        <circle cx="0" cy="0" r="6" fill="currentColor" opacity="0.3" />
+        <path
+          d="M-8 14 Q-8 6, 0 6 Q8 6, 8 14"
+          stroke="currentColor"
+          strokeWidth="2"
+          fill="none"
+          opacity="0.3"
+        />
+      </g>
+      
+      {/* Heart symbol (love/memories) */}
+      <path
+        d="M100 110 C100 110, 95 105, 90 105 C85 105, 82 108, 82 112 C82 118, 100 125, 100 125 C100 125, 118 118, 118 112 C118 108, 115 105, 110 105 C105 105, 100 110, 100 110 Z"
+        fill="currentColor"
+        opacity="0.25"
+      />
+    </svg>
+  );
+}
