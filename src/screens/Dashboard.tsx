@@ -212,7 +212,7 @@ export function Dashboard() {
             variant="primary" 
             onClick={() => setShowNewFolderModal(true)} 
             className="font-mono text-xs tracking-wider"
-            disabled={rotationProgress && !rotationProgress.isComplete}
+            disabled={rotationProgress ? !rotationProgress.isComplete : undefined}
           >
             <Plus size={16} className="mr-2" />
             NEW FOLDER
@@ -221,7 +221,7 @@ export function Dashboard() {
             variant="primary" 
             onClick={() => setShowNewTextModal(true)} 
             className="font-mono text-xs tracking-wider"
-            disabled={rotationProgress && !rotationProgress.isComplete}
+            disabled={rotationProgress ? !rotationProgress.isComplete : undefined}
           >
             <Plus size={16} className="mr-2" />
             NEW TEXT
@@ -230,7 +230,7 @@ export function Dashboard() {
             variant="primary" 
             onClick={() => setShowUploadModal(true)} 
             className="font-mono text-xs tracking-wider"
-            disabled={rotationProgress && !rotationProgress.isComplete}
+            disabled={rotationProgress ? !rotationProgress.isComplete : undefined}
           >
             <Plus size={16} className="mr-2" />
             UPLOAD FILE

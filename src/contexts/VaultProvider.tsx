@@ -17,7 +17,6 @@ import { useAuth } from '@hooks/useAuth';
 import { VaultItem, CreateVaultItemInput } from '@lib/types/vault.types';
 import { EncryptionService } from '@/services/EncryptionService';
 import { detectFileType } from '@lib/utils/fileUtils';
-import { KeyRotationService } from '@/services/KeyRotationService';
 import { UserSettingsService } from '@/services/UserSettingsService';
 
 interface VaultProviderProps {
@@ -30,7 +29,6 @@ export function VaultProvider({ children }: VaultProviderProps) {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [currentPath, setCurrentPath] = useState<string[]>(['Root']);
   const [loading, setLoading] = useState(false);
-  const [rotationInProgress, setRotationInProgress] = useState(false);
 
   // Check for and resume key rotation on mount
   useEffect(() => {
@@ -42,8 +40,6 @@ export function VaultProvider({ children }: VaultProviderProps) {
       const keyRotation = await UserSettingsService.getKeyRotation(user.uid);
       
       if (keyRotation?.rotationInProgress) {
-        setRotationInProgress(true);
-        
         // Note: We can't actually resume here without the old master key
         // The rotation will complete when the user provides both keys
         // This is just to show the UI that rotation is in progress

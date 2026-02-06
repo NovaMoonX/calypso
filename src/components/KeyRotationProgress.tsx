@@ -1,4 +1,4 @@
-import { Panel } from '@moondreamsdev/dreamer-ui/components';
+import { Card } from '@moondreamsdev/dreamer-ui/components';
 import { join } from '@moondreamsdev/dreamer-ui/utils';
 
 interface KeyRotationProgressProps {
@@ -15,7 +15,7 @@ export function KeyRotationProgress({
   className,
 }: KeyRotationProgressProps) {
   return (
-    <Panel className={join('space-y-4', className)}>
+    <Card className={join('space-y-4 p-6', className)}>
       <div className='space-y-2'>
         <div className='flex items-center justify-between'>
           <h3 className='text-lg font-semibold font-mono'>RE-SECURING VAULT</h3>
@@ -86,6 +86,6 @@ export function KeyRotationProgress({
           <li>Don't delete items or sign out until complete</li>
         </ul>
       </div>
-    </Panel>
+    </Card>
   );
 }
