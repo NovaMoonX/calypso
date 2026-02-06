@@ -59,6 +59,15 @@ export const router = createBrowserRouter([
           return { Component: WhyUse };
         },
       },
+      // FAQ page (lazy loaded)
+      {
+        path: 'faq',
+        HydrateFallback: Loading,
+        lazy: async () => {
+          const { default: FAQ } = await import('@screens/FAQ');
+          return { Component: FAQ };
+        },
+      },
       // About page (lazy loaded)
       {
         path: 'about',

@@ -59,7 +59,7 @@ function UseCaseCard({ illustration, title, description, examples }: UseCaseCard
         <ul className="space-y-1 font-mono text-xs text-foreground/60">
           {examples.map((example, idx) => (
             <li key={idx} className="flex items-start gap-2">
-              <span className="text-foreground/40 mt-0.5">•</span>
+              <span className="text-foreground/40">•</span>
               <span>{example}</span>
             </li>
           ))}
@@ -134,15 +134,15 @@ export function WhyUse() {
                     <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Great For:</p>
                     <ul className="space-y-1.5 font-mono text-sm text-foreground/50">
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground/30 mt-1">•</span>
+                        <span className="text-foreground/30 ">•</span>
                         <span>Sharing files with others</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground/30 mt-1">•</span>
+                        <span className="text-foreground/30 ">•</span>
                         <span>AI-powered features (search, OCR)</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground/30 mt-1">•</span>
+                        <span className="text-foreground/30 ">•</span>
                         <span>Cross-device sync and convenience</span>
                       </li>
                     </ul>
@@ -151,15 +151,15 @@ export function WhyUse() {
                     <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Privacy Trade-offs:</p>
                     <ul className="space-y-1.5 font-mono text-sm text-foreground/60">
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground/40 mt-1">•</span>
+                        <span className="text-foreground/40 ">•</span>
                         <span>Provider can access your files</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground/40 mt-1">•</span>
+                        <span className="text-foreground/40 ">•</span>
                         <span>Data may be scanned for ads/AI training</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground/40 mt-1">•</span>
+                        <span className="text-foreground/40 ">•</span>
                         <span>Subject to government data requests</span>
                       </li>
                     </ul>
@@ -177,15 +177,15 @@ export function WhyUse() {
                     <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Specialized For:</p>
                     <ul className="space-y-1.5 font-mono text-sm">
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground mt-1">✓</span>
+                        <span className="text-foreground ">✓</span>
                         <span>Your most sensitive documents</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground mt-1">✓</span>
+                        <span className="text-foreground ">✓</span>
                         <span>Items you'd never want exposed</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground mt-1">✓</span>
+                        <span className="text-foreground ">✓</span>
                         <span>Data requiring complete privacy</span>
                       </li>
                     </ul>
@@ -194,15 +194,15 @@ export function WhyUse() {
                     <p className="font-mono text-xs font-bold tracking-wider uppercase text-foreground/50 mb-2">Privacy Guarantees:</p>
                     <ul className="space-y-1.5 font-mono text-sm">
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground mt-1">✓</span>
+                        <span className="text-foreground ">✓</span>
                         <span>Only you can decrypt your data</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground mt-1">✓</span>
+                        <span className="text-foreground ">✓</span>
                         <span>We literally can't see your files</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-foreground mt-1">✓</span>
+                        <span className="text-foreground ">✓</span>
                         <span>Even we can't hand over readable data</span>
                       </li>
                     </ul>
@@ -266,75 +266,6 @@ export function WhyUse() {
             </div>
           </div>
 
-          {/* CLOUD Act Section */}
-          <div className="border-border bg-card rounded-lg border p-8 space-y-6">
-            <h2 className="font-mono text-2xl font-bold tracking-wider uppercase text-center">
-              What About Government Requests?
-            </h2>
-            
-            <div className="space-y-4 max-w-4xl mx-auto">
-              <div className="space-y-3">
-                <h3 className="font-mono font-bold tracking-wider uppercase text-sm">
-                  The CLOUD Act Reality
-                </h3>
-                <p className="text-foreground/70 font-mono text-sm leading-relaxed">
-                  The Clarifying Lawful Overseas Use of Data (CLOUD) Act allows U.S. law enforcement to compel 
-                  U.S.-based providers like Google to hand over data they control, regardless of where servers are located.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <h3 className="font-mono font-bold tracking-wider uppercase text-xs text-foreground/70">
-                    What Google Must Provide
-                  </h3>
-                  <ul className="space-y-2 font-mono text-xs text-foreground/60">
-                    <li className="flex items-start gap-2">
-                      <span className="text-foreground/40 mt-0.5">•</span>
-                      <span>All encrypted data in Firebase Storage</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-foreground/40 mt-0.5">•</span>
-                      <span>Encrypted metadata and wrapped keys in Firestore</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-foreground/40 mt-0.5">•</span>
-                      <span>User logs (IP addresses, login times)</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-mono font-bold tracking-wider uppercase text-xs text-foreground">
-                    What They Actually Get
-                  </h3>
-                  <ul className="space-y-2 font-mono text-xs">
-                    <li className="flex items-start gap-2">
-                      <span className="text-foreground mt-0.5">✓</span>
-                      <span><strong>Ciphertext</strong> — encrypted, unreadable data</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-foreground mt-0.5">✓</span>
-                      <span><strong>No decryption keys</strong> — those are on your device</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-foreground mt-0.5">✓</span>
-                      <span><strong>Useless without your passphrase</strong> — which we never see</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className="border-border bg-background/50 rounded border p-4">
-                <p className="text-foreground/70 font-mono text-xs leading-relaxed">
-                  <strong className="text-foreground">The Bottom Line:</strong> The CLOUD Act doesn't require companies to build backdoors 
-                  or decrypt data they can't access. Your Master Key is derived on your device and never transmitted. 
-                  Google would hand over gibberish — mathematically useless without your passphrase.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* CTA */}
           <div className="text-center space-y-6 py-8">
             <p className="text-foreground/70 font-mono text-sm max-w-2xl mx-auto">
@@ -349,11 +280,11 @@ export function WhyUse() {
                 GET STARTED
               </Button>
               <Button
-                href="/about"
+                href="/faq"
                 variant="secondary"
                 className="font-mono tracking-wider min-w-[200px]"
               >
-                LEARN MORE
+                VIEW FAQ
               </Button>
             </div>
           </div>

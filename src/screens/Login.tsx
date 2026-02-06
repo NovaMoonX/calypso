@@ -54,6 +54,16 @@ export function Login() {
           Why Use?
         </Link>
         <Link
+          to='/faq'
+          className={join(
+            'font-mono text-xs tracking-wider uppercase',
+            'text-foreground/60 hover:text-foreground transition-colors',
+            'underline decoration-foreground/20 hover:decoration-foreground/60'
+          )}
+        >
+          FAQ
+        </Link>
+        <Link
           to='/about'
           className={join(
             'font-mono text-xs tracking-wider uppercase',

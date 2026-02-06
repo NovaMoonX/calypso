@@ -19,9 +19,9 @@ export function SecurityIllustration({ className = 'w-48 h-48' }: IllustrationPr
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Shield outline */}
+      {/* Shield outline - adjusted to be more balanced */}
       <path
-        d="M100 20 L160 40 L160 90 C160 130, 130 160, 100 180 C70 160, 40 130, 40 90 L40 40 Z"
+        d="M100 30 L160 50 L160 95 C160 130, 130 155, 100 170 C70 155, 40 130, 40 95 L40 50 Z"
         stroke="currentColor"
         strokeWidth="3"
         fill="none"
@@ -31,9 +31,9 @@ export function SecurityIllustration({ className = 'w-48 h-48' }: IllustrationPr
       {/* Lock body */}
       <rect
         x="80"
-        y="95"
+        y="100"
         width="40"
-        height="45"
+        height="40"
         rx="4"
         stroke="currentColor"
         strokeWidth="3"
@@ -43,7 +43,7 @@ export function SecurityIllustration({ className = 'w-48 h-48' }: IllustrationPr
       
       {/* Lock shackle */}
       <path
-        d="M85 95 V80 C85 71.716, 91.716 65, 100 65 C108.284 65, 115 71.716, 115 80 V95"
+        d="M85 100 V85 C85 76.716, 91.716 70, 100 70 C108.284 70, 115 76.716, 115 85 V100"
         stroke="currentColor"
         strokeWidth="3"
         fill="none"
@@ -53,23 +53,23 @@ export function SecurityIllustration({ className = 'w-48 h-48' }: IllustrationPr
       {/* Keyhole */}
       <circle
         cx="100"
-        cy="112"
+        cy="115"
         r="5"
         fill="currentColor"
       />
       <rect
         x="97"
-        y="117"
+        y="120"
         width="6"
         height="12"
         fill="currentColor"
       />
       
       {/* Encryption dots pattern */}
-      <circle cx="70" cy="60" r="2" fill="currentColor" opacity="0.4" />
-      <circle cx="80" cy="55" r="2" fill="currentColor" opacity="0.4" />
-      <circle cx="120" cy="55" r="2" fill="currentColor" opacity="0.4" />
-      <circle cx="130" cy="60" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="70" cy="65" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="80" cy="60" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="120" cy="60" r="2" fill="currentColor" opacity="0.4" />
+      <circle cx="130" cy="65" r="2" fill="currentColor" opacity="0.4" />
     </svg>
   );
 }
@@ -177,9 +177,9 @@ export function ControlIllustration({ className = 'w-48 h-48' }: IllustrationPro
         opacity="0.4"
       />
       
-      {/* User shoulders */}
+      {/* User shoulders - fixed to stay within circle */}
       <path
-        d="M75 100 Q75 85, 100 85 Q125 85, 125 100"
+        d="M80 100 Q80 88, 100 88 Q120 88, 120 100"
         stroke="currentColor"
         strokeWidth="3"
         fill="none"
@@ -231,10 +231,10 @@ export function ControlIllustration({ className = 'w-48 h-48' }: IllustrationPro
         opacity="0.4"
       />
       
-      {/* Control indicators - checkmarks */}
+      {/* Control indicators - checkmarks - repositioned */}
       <g opacity="0.5">
         <path
-          d="M50 135 L55 140 L65 130"
+          d="M55 125 L60 130 L70 120"
           stroke="currentColor"
           strokeWidth="2.5"
           fill="none"
@@ -242,7 +242,7 @@ export function ControlIllustration({ className = 'w-48 h-48' }: IllustrationPro
           strokeLinejoin="round"
         />
         <path
-          d="M135 135 L140 140 L150 130"
+          d="M130 125 L135 130 L145 120"
           stroke="currentColor"
           strokeWidth="2.5"
           fill="none"
@@ -268,19 +268,19 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
     >
       {/* Open lock shackle */}
       <path
-        d="M75 90 V60 C75 43.4315, 88.4315 30, 105 30 C121.569 30, 135 43.4315, 135 60 V70"
+        d="M85 95 V65 C85 48.4315, 95.4315 38, 105 38 C114.569 38, 125 48.4315, 125 65 V75"
         stroke="currentColor"
         strokeWidth="3"
         fill="none"
         strokeLinecap="round"
       />
       
-      {/* Lock body */}
+      {/* Lock body - wider */}
       <rect
-        x="70"
-        y="90"
+        x="75"
+        y="95"
         width="60"
-        height="70"
+        height="65"
         rx="6"
         stroke="currentColor"
         strokeWidth="3"
@@ -290,30 +290,30 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
       
       {/* Open keyhole with rays */}
       <circle
-        cx="100"
-        cy="115"
+        cx="105"
+        cy="118"
         r="8"
         fill="currentColor"
         opacity="0.3"
       />
       <rect
-        x="96"
-        y="123"
+        x="101"
+        y="126"
         width="8"
-        height="20"
+        height="18"
         fill="currentColor"
         opacity="0.3"
       />
       
       {/* Freedom rays */}
-      <path d="M100 105 L100 85" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
-      <path d="M110 108 L120 95" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
-      <path d="M90 108 L80 95" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
+      <path d="M105 110 L105 90" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
+      <path d="M115 113 L125 100" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
+      <path d="M95 113 L85 100" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
       
-      {/* Export/download arrows */}
-      <g transform="translate(35, 125)">
+      {/* Export/download arrows - repositioned */}
+      <g transform="translate(45, 115)">
         <path
-          d="M10 0 L10 15 M5 10 L10 15 L15 10"
+          d="M0 0 L0 15 M-5 10 L0 15 L5 10"
           stroke="currentColor"
           strokeWidth="2.5"
           fill="none"
@@ -323,9 +323,9 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
         />
       </g>
       
-      <g transform="translate(155, 125)">
+      <g transform="translate(165, 115)">
         <path
-          d="M10 0 L10 15 M5 10 L10 15 L15 10"
+          d="M0 0 L0 15 M-5 10 L0 15 L5 10"
           stroke="currentColor"
           strokeWidth="2.5"
           fill="none"
@@ -342,7 +342,7 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
  * Personal Documents illustration
  * Depicts important documents like ID cards and certificates
  */
-export function PersonalDocumentsIllustration({ className = 'w-32 h-32' }: IllustrationProps) {
+export function PersonalDocumentsIllustration({ className = 'w-40 h-40' }: IllustrationProps) {
   return (
     <svg
       className={className}
@@ -427,7 +427,7 @@ export function PersonalDocumentsIllustration({ className = 'w-32 h-32' }: Illus
  * Creative Work illustration
  * Depicts artistic/creative tools and content
  */
-export function CreativeWorkIllustration({ className = 'w-32 h-32' }: IllustrationProps) {
+export function CreativeWorkIllustration({ className = 'w-40 h-40' }: IllustrationProps) {
   return (
     <svg
       className={className}
@@ -501,7 +501,7 @@ export function CreativeWorkIllustration({ className = 'w-32 h-32' }: Illustrati
  * Family Memories illustration
  * Depicts photos and precious family moments
  */
-export function FamilyMemoriesIllustration({ className = 'w-32 h-32' }: IllustrationProps) {
+export function FamilyMemoriesIllustration({ className = 'w-40 h-40' }: IllustrationProps) {
   return (
     <svg
       className={className}
