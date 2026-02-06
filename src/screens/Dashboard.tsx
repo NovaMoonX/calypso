@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { join } from '@moondreamsdev/dreamer-ui/utils';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
@@ -19,6 +20,7 @@ import { KeyRotationService, KeyRotationProgress as KeyRotationProgressType } fr
 export function Dashboard() {
   const { user, signOut } = useAuth();
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const {
     items,
     currentPath,
@@ -160,6 +162,13 @@ export function Dashboard() {
           <CalypsoLogoWithText size={32} />
           <div className="flex items-center gap-4">
             <span className="text-xs text-foreground/70">{user?.email}</span>
+            <Button 
+              variant="secondary" 
+              onClick={() => navigate('/auth/change-passphrase')} 
+              className="font-mono text-xs tracking-wider"
+            >
+              CHANGE PASSPHRASE
+            </Button>
             <Button variant="secondary" onClick={signOut} className="font-mono text-xs tracking-wider">
               SIGN OUT
             </Button>
