@@ -153,6 +153,18 @@ export function PassphraseSetup() {
           >
             {isReturningUser ? 'Unlock Vault' : 'Create Vault'}
           </Button>
+
+          {isReturningUser && (
+            <div className='text-center'>
+              <button
+                type='button'
+                onClick={() => navigate('/auth/recovery')}
+                className='text-sm text-foreground/60 hover:text-foreground underline'
+              >
+                Forgot your passphrase? Use a recovery code
+              </button>
+            </div>
+          )}
         </form>
       </div>
     </div>

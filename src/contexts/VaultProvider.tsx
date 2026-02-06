@@ -17,6 +17,8 @@ import { useAuth } from '@hooks/useAuth';
 import { VaultItem, CreateVaultItemInput } from '@lib/types/vault.types';
 import { EncryptionService } from '@/services/EncryptionService';
 import { detectFileType } from '@lib/utils/fileUtils';
+import { KeyRotationService } from '@/services/KeyRotationService';
+import { UserSettingsService } from '@/services/UserSettingsService';
 
 interface VaultProviderProps {
   children: ReactNode;
@@ -28,6 +30,29 @@ export function VaultProvider({ children }: VaultProviderProps) {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [currentPath, setCurrentPath] = useState<string[]>(['Root']);
   const [loading, setLoading] = useState(false);
+  const [rotationInProgress, setRotationInProgress] = useState(false);
+
+  // Check for and resume key rotation on mount
+  useEffect(() => {
+    const checkAndResumeRotation = async () => {
+      if (!user || !masterKey) {
+        return;
+      }
+
+      const keyRotation = await UserSettingsService.getKeyRotation(user.uid);
+      
+      if (keyRotation?.rotationInProgress) {
+        setRotationInProgress(true);
+        
+        // Note: We can't actually resume here without the old master key
+        // The rotation will complete when the user provides both keys
+        // This is just to show the UI that rotation is in progress
+        console.log('Key rotation in progress detected');
+      }
+    };
+
+    checkAndResumeRotation();
+  }, [user, masterKey]);
 
   // Load items for current folder
   const loadItems = useCallback(async () => {
@@ -136,6 +161,10 @@ export function VaultProvider({ children }: VaultProviderProps) {
       throw new Error('User not authenticated or master key not set');
     }
 
+    // Get current key version
+    const keyRotation = await UserSettingsService.getKeyRotation(user.uid);
+    const keyVersion = keyRotation?.activeKeyVersion ?? 1;
+
     // Encrypt the text content
     const encrypted = await EncryptionService.encryptItem(content, masterKey);
 
@@ -152,6 +181,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
       encryptedDek: encrypted.encryptedDek,
       iv: encrypted.iv,
       dekIv: encrypted.dekIv,
+      keyVersion,
     };
 
     await addDoc(collection(db, 'vault_items'), {
@@ -175,6 +205,10 @@ export function VaultProvider({ children }: VaultProviderProps) {
 
     // Auto-detect file type from MIME type
     const type = detectFileType(file.type);
+
+    // Get current key version
+    const keyRotation = await UserSettingsService.getKeyRotation(user.uid);
+    const keyVersion = keyRotation?.activeKeyVersion ?? 1;
 
     // Read file as ArrayBuffer
     const fileBuffer = await file.arrayBuffer();
@@ -208,6 +242,7 @@ export function VaultProvider({ children }: VaultProviderProps) {
       encryptedDek: encrypted.encryptedDek,
       iv: encrypted.iv,
       dekIv: encrypted.dekIv,
+      keyVersion,
     };
 
     await addDoc(collection(db, 'vault_items'), {

@@ -6,6 +6,7 @@ import Login from '@screens/Login';
 import AuthVerify from '@screens/AuthVerify';
 import PassphraseSetup from '@screens/PassphraseSetup';
 import RecoveryCodes from '@screens/RecoveryCodes';
+import Recovery from '@screens/Recovery';
 import Dashboard from '@screens/Dashboard';
 import { ProtectedRoute } from '@components/ProtectedRoute';
 
@@ -39,6 +40,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <RecoveryCodes />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'auth/recovery',
+        element: (
+          <ProtectedRoute>
+            <Recovery />
           </ProtectedRoute>
         ),
       },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { join } from '@moondreamsdev/dreamer-ui/utils';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
@@ -13,6 +13,8 @@ import { Plus, ChevronLeft, Trash } from '@moondreamsdev/dreamer-ui/symbols';
 import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@components/Icons';
 import { CalypsoLogoWithText } from '@components/Logo';
 import { FileUploadModal } from '@components/FileUploadModal';
+import { KeyRotationProgress } from '@components/KeyRotationProgress';
+import { KeyRotationService, KeyRotationProgress as KeyRotationProgressType } from '@/services/KeyRotationService';
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
@@ -35,6 +37,33 @@ export function Dashboard() {
   const [newFolderName, setNewFolderName] = useState('');
   const [newTextName, setNewTextName] = useState('');
   const [newTextContent, setNewTextContent] = useState('');
+  const [rotationProgress, setRotationProgress] = useState<KeyRotationProgressType | null>(null);
+
+  // Check for key rotation progress
+  useEffect(() => {
+    const checkRotationProgress = async () => {
+      if (!user) return;
+
+      const progress = await KeyRotationService.getRotationProgress(user.uid);
+      if (!progress.isComplete) {
+        setRotationProgress(progress);
+        
+        // Poll for updates every 3 seconds
+        const interval = setInterval(async () => {
+          const updatedProgress = await KeyRotationService.getRotationProgress(user.uid);
+          setRotationProgress(updatedProgress);
+          
+          if (updatedProgress.isComplete) {
+            clearInterval(interval);
+          }
+        }, 3000);
+
+        return () => clearInterval(interval);
+      }
+    };
+
+    checkRotationProgress();
+  }, [user]);
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
@@ -157,17 +186,43 @@ export function Dashboard() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        {/* Key Rotation Progress */}
+        {rotationProgress && !rotationProgress.isComplete && (
+          <div className="mb-6">
+            <KeyRotationProgress
+              totalItems={rotationProgress.totalItems}
+              processedItems={rotationProgress.processedItems}
+              percentComplete={rotationProgress.percentComplete}
+            />
+          </div>
+        )}
+
         {/* Actions */}
         <div className="mb-6 flex flex-wrap gap-2">
-          <Button variant="primary" onClick={() => setShowNewFolderModal(true)} className="font-mono text-xs tracking-wider">
+          <Button 
+            variant="primary" 
+            onClick={() => setShowNewFolderModal(true)} 
+            className="font-mono text-xs tracking-wider"
+            disabled={rotationProgress && !rotationProgress.isComplete}
+          >
             <Plus size={16} className="mr-2" />
             NEW FOLDER
           </Button>
-          <Button variant="primary" onClick={() => setShowNewTextModal(true)} className="font-mono text-xs tracking-wider">
+          <Button 
+            variant="primary" 
+            onClick={() => setShowNewTextModal(true)} 
+            className="font-mono text-xs tracking-wider"
+            disabled={rotationProgress && !rotationProgress.isComplete}
+          >
             <Plus size={16} className="mr-2" />
             NEW TEXT
           </Button>
-          <Button variant="primary" onClick={() => setShowUploadModal(true)} className="font-mono text-xs tracking-wider">
+          <Button 
+            variant="primary" 
+            onClick={() => setShowUploadModal(true)} 
+            className="font-mono text-xs tracking-wider"
+            disabled={rotationProgress && !rotationProgress.isComplete}
+          >
             <Plus size={16} className="mr-2" />
             UPLOAD FILE
           </Button>

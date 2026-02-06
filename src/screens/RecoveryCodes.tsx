@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { useAuth } from '@hooks/useAuth';
 import { RecoveryCodesService } from '@/services/RecoveryCodesService';
+import { UserSettingsService } from '@/services/UserSettingsService';
 
 export function RecoveryCodes() {
   const [codes, setCodes] = useState<string[]>([]);
   const [downloaded, setDownloaded] = useState(false);
-  const { user } = useAuth();
+  const [isGenerating, setIsGenerating] = useState(true);
+  const { user, masterKey } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,24 +20,45 @@ export function RecoveryCodes() {
         return;
       }
 
-      // Check if codes already exist (now async)
-      const codesExist = await RecoveryCodesService.hasRecoveryCodes(user.uid);
-      if (codesExist) {
+      // Check if master key is available
+      if (!masterKey) {
+        navigate('/auth/passphrase');
+        return;
+      }
+
+      // Check if codes already exist
+      const existingCodes = await UserSettingsService.getRecoveryCodes(user.uid);
+      if (existingCodes.length > 0) {
         // Skip to dashboard if codes already generated
         navigate('/dashboard');
         return;
       }
 
-      // Generate recovery codes
-      const generatedCodes = RecoveryCodesService.generateRecoveryCodes();
-      setCodes(generatedCodes);
-      
-      // Store hashed versions in Firestore
-      await RecoveryCodesService.storeRecoveryCodes(user.uid, generatedCodes);
+      try {
+        // Generate recovery codes
+        const generatedCodes = RecoveryCodesService.generateRecoveryCodes();
+        setCodes(generatedCodes);
+        
+        // Wrap master key with each recovery code
+        const recoveryCodeEntries = await RecoveryCodesService.generateRecoveryCodeEntries(
+          generatedCodes,
+          masterKey
+        );
+        
+        // Store wrapped recovery codes in user settings
+        await UserSettingsService.storeRecoveryCodes(user.uid, recoveryCodeEntries);
+        
+        // Initialize key rotation metadata
+        await UserSettingsService.initializeKeyRotation(user.uid);
+      } catch (error) {
+        console.error('Error generating recovery codes:', error);
+      } finally {
+        setIsGenerating(false);
+      }
     };
 
     checkAndGenerateCodes();
-  }, [user, navigate]);
+  }, [user, masterKey, navigate]);
 
   const handleDownload = () => {
     const codesText = codes.join('\n');
@@ -52,6 +75,14 @@ export function RecoveryCodes() {
   const handleContinue = () => {
     navigate('/dashboard');
   };
+
+  if (isGenerating) {
+    return (
+      <div className="page flex items-center justify-center">
+        <div>Generating recovery codes...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="page flex items-center justify-center">
@@ -84,7 +115,7 @@ export function RecoveryCodes() {
               <li>Store them in a secure location (password manager, safe, etc.)</li>
               <li>Download now - you won't see them again</li>
               <li>Do not share these codes with anyone</li>
-              <li>Recovery flow coming soon - save codes for future use</li>
+              <li>You can use these to reset your passphrase if forgotten</li>
             </ul>
           </div>
 
