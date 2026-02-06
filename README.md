@@ -16,6 +16,7 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 ### Authentication & Access
 - 📧 **Passwordless Authentication**: Firebase Email Link authentication
 - ✉️ **Smart Email Hints**: Spam folder reminder for better user experience
+- 🔄 **Seamless Tab Experience**: Email verification automatically closes the new tab and returns you to the original tab, even when sign-in is initiated from multiple tabs
 - 🔐 **Passphrase Protection**: Minimum 12-character passphrase requirement
 - 🔄 **Persistent Authentication**: Salt stored in Firestore allows seamless return without passphrase recreation
 - 🚪 **Auto Sign-Out Redirect**: Secure redirect to login on sign-out
@@ -169,6 +170,11 @@ firebase deploy
    
 2. **Email Verification**:
    - Click the link in your email
+   - The link will open in a new tab
+   - After verification, the new tab will automatically close
+   - You'll be seamlessly redirected in your original tab to continue setup
+   - Even if you initiated sign-in from multiple tabs, the correct tab will be redirected
+   - If the original tab was closed, verification continues in the new tab
    - If needed, confirm your email in the modal dialog
    
 3. **Create Passphrase** (New Users Only):

@@ -7,7 +7,7 @@ export interface AuthContextType {
   masterKey: CryptoKey | null;
   salt: Uint8Array | null;
   signInWithEmailLink: (email: string) => Promise<void>;
-  sendSignInLink: (email: string) => Promise<void>;
+  sendSignInLink: (email: string, tabId?: string) => Promise<void>;
   setMasterKeyFromPassphrase: (passphrase: string, salt?: Uint8Array, isNewPassphrase?: boolean) => Promise<void>;
   signOut: () => Promise<void>;
 }

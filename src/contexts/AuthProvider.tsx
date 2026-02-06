@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, ReactNode, useCallback } from 'react';
 import {
   User,
   isSignInWithEmailLink,
@@ -11,10 +11,13 @@ import { auth } from '@lib/firebase/FirebaseConfig';
 import { AuthContext } from '@hooks/useAuth';
 import { EncryptionService } from '@/services/EncryptionService';
 import { UserSettingsService } from '@/services/UserSettingsService';
+import { TAB_ID_PARAM } from '@utils/tabCommunication';
 
 interface AuthProviderProps {
   children: ReactNode;
 }
+
+export const EMAIL_FOR_SIGN_IN_KEY = 'emailForSignIn';
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
@@ -23,12 +26,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [salt, setSalt] = useState<Uint8Array | null>(null);
 
   // Shared reset logic for clearing user session data
-  const resetSessionData = () => {
+  const resetSessionData = useCallback(() => {
     setMasterKey(null);
     setSalt(null);
     // Note: We don't remove salt from Firestore or localStorage on sign out
     // This allows returning users to use their existing passphrase
-  };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -42,28 +45,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return unsubscribe;
-  }, []);
+  }, [resetSessionData]);
 
-  const sendSignInLink = async (email: string) => {
+  const sendSignInLink = useCallback(async (email: string, tabId?: string) => {
     const actionCodeSettings = {
-      url: window.location.origin + '/auth/verify',
+      url: `${window.location.origin}/auth/verify${tabId ? `?${TAB_ID_PARAM}=${tabId}` : ''}`,
       handleCodeInApp: true,
     };
 
     await sendSignInLinkToEmail(auth, email, actionCodeSettings);
     
     // Save email to local storage for verification
-    window.localStorage.setItem('emailForSignIn', email);
-  };
+    window.localStorage.setItem(EMAIL_FOR_SIGN_IN_KEY, email);
+  }, []);
 
-  const signInWithEmailLink = async (email: string) => {
+  const signInWithEmailLink = useCallback(async (email: string) => {
     if (isSignInWithEmailLink(auth, window.location.href)) {
       await firebaseSignInWithEmailLink(auth, email, window.location.href);
-      window.localStorage.removeItem('emailForSignIn');
+      window.localStorage.removeItem(EMAIL_FOR_SIGN_IN_KEY);
     }
-  };
+  }, []);
 
-  const setMasterKeyFromPassphrase = async (passphrase: string, providedSalt?: Uint8Array, isNewPassphrase: boolean = false) => {
+  const setMasterKeyFromPassphrase = useCallback(async (
+    passphrase: string,
+    providedSalt?: Uint8Array,
+    isNewPassphrase: boolean = false,
+  ) => {
     const result = await EncryptionService.deriveMasterKey(passphrase, providedSalt);
     
     setMasterKey(result.key);
@@ -89,15 +96,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       }
     }
-  };
+  }, [user]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await firebaseSignOut(auth);
     resetSessionData();
     
     // Redirect to login page
     window.location.href = '/login';
-  };
+  }, [resetSessionData]);
 
   const contextValue = {
     user,
