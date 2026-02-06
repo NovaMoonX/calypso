@@ -8,6 +8,7 @@ import PassphraseSetup from '@screens/PassphraseSetup';
 import RecoveryCodes from '@screens/RecoveryCodes';
 import Recovery from '@screens/Recovery';
 import ChangePassphrase from '@screens/ChangePassphrase';
+import KeyRotationScreen from '@screens/KeyRotationScreen';
 import Dashboard from '@screens/Dashboard';
 import { ProtectedRoute } from '@components/ProtectedRoute';
 
@@ -57,6 +58,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute requireMasterKey>
             <ChangePassphrase />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'auth/key-rotation',
+        element: (
+          <ProtectedRoute>
+            <KeyRotationScreen />
           </ProtectedRoute>
         ),
       },
