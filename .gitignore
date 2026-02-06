@@ -29,6 +29,11 @@ tsconfig.app.tsbuildinfo
 # Firebase
 .firebase
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+
 # Scaffold files
 .scaffold-progress
 .scaffold-config

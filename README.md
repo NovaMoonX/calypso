@@ -37,6 +37,7 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 - 🔰 **Custom "C" Logo**: Secure vault door design
 - 📱 **Responsive Design**: Works on desktop and mobile devices
 - 🎯 **Modal-Based Flows**: Professional UI components instead of browser prompts
+- 📄 **Why Use Page**: Comprehensive explanation of benefits for non-technical users with theme-aware SVG illustrations
 
 ## Tech Stack
 
@@ -160,6 +161,17 @@ firebase deploy
 ```
 
 ## Usage
+
+### Exploring the App
+
+Before signing up, you can learn about Calypso's benefits:
+
+- **Why Use Page** (`/why-use`): A comprehensive, user-friendly page explaining why you should choose Calypso over traditional cloud storage
+  - Benefits include true privacy, simplicity, user control, and no vendor lock-in
+  - Side-by-side comparison with traditional cloud providers
+  - Use case examples for personal documents, creative work, and family memories
+  - Theme-aware SVG illustrations that adapt to light/dark mode
+  - Accessible from the login page via the "WHY USE?" link in the upper left
 
 ### First-Time Setup
 
