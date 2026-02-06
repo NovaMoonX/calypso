@@ -62,12 +62,18 @@ export function PassphraseSetup() {
       // Pass isNewPassphrase flag to store salt in Firestore for new users
       await setMasterKeyFromPassphrase(passphrase, salt, !isReturningUser);
 
-      // Redirect to recovery codes for new users, dashboard for returning users
-      if (isReturningUser) {
-        navigate('/dashboard');
-      } else {
-        navigate('/auth/recovery-codes');
+      // Check if user has recovery codes (for both new and returning users)
+      if (user) {
+        const existingCodes = await UserSettingsService.getRecoveryCodes(user.uid);
+        if (existingCodes.length === 0) {
+          // No recovery codes - redirect to generate them
+          navigate('/auth/recovery-codes');
+          return;
+        }
       }
+
+      // User has recovery codes - proceed to dashboard
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error setting master key:', error);
       addToast({
