@@ -1,15 +1,15 @@
-import { collection, doc, getDoc, setDoc, updateDoc, arrayRemove } from 'firebase/firestore';
-import { db } from '@lib/firebase/FirebaseConfig';
+import { RecoveryCodeEntry } from '@lib/types/vault.types';
+import { EncryptionService } from './EncryptionService';
 
 /**
  * Recovery codes service for account recovery
- * Uses Firestore for secure server-side storage with proper security rules
- * and SHA-256 hashing for code protection.
+ * Uses PBKDF2 to derive recovery keys from codes and wraps the master key
  */
 
 export class RecoveryCodesService {
-  private static readonly CODES_COUNT = 10;
+  private static readonly CODES_COUNT = 8; // 8 single-use codes as per spec
   private static readonly CODE_LENGTH = 16;
+  private static readonly RECOVERY_KEY_ITERATIONS = 100000; // Lighter than master key for usability
   
   /**
    * Generate recovery codes for the user
@@ -53,98 +53,139 @@ export class RecoveryCodesService {
   }
   
   /**
-   * Hash a recovery code for storage
+   * Derive a recovery key from a recovery code using PBKDF2
    */
-  static async hashRecoveryCode(code: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(code);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  static async deriveRecoveryKey(code: string, salt: Uint8Array): Promise<CryptoKey> {
+    // Import code as key material
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(code),
+      'PBKDF2',
+      false,
+      ['deriveBits', 'deriveKey']
+    );
+
+    // Derive recovery key using PBKDF2
+    const recoveryKey = await crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt as BufferSource,
+        iterations: this.RECOVERY_KEY_ITERATIONS,
+        hash: 'SHA-256',
+      },
+      keyMaterial,
+      {
+        name: 'AES-GCM',
+        length: 256,
+      },
+      true,
+      ['encrypt', 'decrypt']
+    );
+
+    return recoveryKey;
+  }
+  
+  /**
+   * Wrap master key with recovery key
+   */
+  static async wrapMasterKeyWithRecoveryKey(
+    masterKey: CryptoKey,
+    recoveryCode: string
+  ): Promise<RecoveryCodeEntry> {
+    // Generate unique salt for this recovery code
+    const salt = crypto.getRandomValues(new Uint8Array(16));
     
-    return Array.from(new Uint8Array(hashBuffer))
+    // Derive recovery key from the code
+    const recoveryKey = await this.deriveRecoveryKey(recoveryCode, salt);
+    
+    // Wrap master key with recovery key
+    const wrappedKey = await EncryptionService.encryptDEK(masterKey, recoveryKey);
+    
+    // Generate unique code ID
+    const codeId = this.generateCodeId();
+    
+    return {
+      codeId,
+      salt: this.arrayBufferToBase64(salt.buffer as ArrayBuffer),
+      wrappedMasterKey: wrappedKey.ciphertext,
+      iv: wrappedKey.iv,
+      usedAt: null,
+    };
+  }
+  
+  /**
+   * Unwrap master key using recovery code
+   */
+  static async unwrapMasterKeyWithRecoveryCode(
+    recoveryCode: string,
+    entry: RecoveryCodeEntry
+  ): Promise<CryptoKey> {
+    // Decode salt from base64
+    const salt = this.base64ToUint8Array(entry.salt);
+    
+    // Derive recovery key from the code
+    const recoveryKey = await this.deriveRecoveryKey(recoveryCode, salt);
+    
+    // Unwrap master key
+    const masterKey = await EncryptionService.decryptDEK(
+      {
+        ciphertext: entry.wrappedMasterKey,
+        iv: entry.iv,
+      },
+      recoveryKey
+    );
+    
+    return masterKey;
+  }
+  
+  /**
+   * Generate recovery code entries (wrapped master keys) from codes
+   */
+  static async generateRecoveryCodeEntries(
+    codes: string[],
+    masterKey: CryptoKey
+  ): Promise<RecoveryCodeEntry[]> {
+    const entries: RecoveryCodeEntry[] = [];
+    
+    for (const code of codes) {
+      const entry = await this.wrapMasterKeyWithRecoveryKey(masterKey, code);
+      entries.push(entry);
+    }
+    
+    return entries;
+  }
+  
+  /**
+   * Generate a unique code ID
+   */
+  private static generateCodeId(): string {
+    const bytes = crypto.getRandomValues(new Uint8Array(8));
+    return Array.from(bytes)
       .map(b => b.toString(16).padStart(2, '0'))
       .join('');
   }
   
   /**
-   * Verify a recovery code against a hash using constant-time comparison
+   * Convert ArrayBuffer to Base64 string
    */
-  static async verifyRecoveryCode(code: string, hash: string): Promise<boolean> {
-    const codeHash = await this.hashRecoveryCode(code);
-    
-    // Constant-time string comparison to prevent timing attacks
-    if (codeHash.length !== hash.length) {
-      return false;
+  private static arrayBufferToBase64(buffer: ArrayBuffer): string {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
     }
-    
-    let result = 0;
-    for (let i = 0; i < codeHash.length; i++) {
-      result |= codeHash.charCodeAt(i) ^ hash.charCodeAt(i);
-    }
-    
-    return result === 0;
+    return btoa(binary);
   }
   
   /**
-   * Store recovery codes in Firestore (hashed)
+   * Convert Base64 string to Uint8Array
    */
-  static async storeRecoveryCodes(userId: string, codes: string[]): Promise<void> {
-    const hashedCodes = await Promise.all(
-      codes.map(code => this.hashRecoveryCode(code))
-    );
-    
-    const recoveryCodesRef = doc(collection(db, 'recovery_codes'), userId);
-    
-    await setDoc(recoveryCodesRef, {
-      codes: hashedCodes,
-      createdAt: Date.now(),
-    });
-  }
-  
-  /**
-   * Check if recovery codes already exist for a user
-   */
-  static async hasRecoveryCodes(userId: string): Promise<boolean> {
-    const recoveryCodesRef = doc(collection(db, 'recovery_codes'), userId);
-    const snapshot = await getDoc(recoveryCodesRef);
-    return snapshot.exists();
-  }
-  
-  /**
-   * Validate recovery code and mark as used (atomic operation)
-   * Returns true if code is valid and successfully marked as used
-   */
-  static async validateAndConsumeRecoveryCode(userId: string, code: string): Promise<boolean> {
-    const recoveryCodesRef = doc(collection(db, 'recovery_codes'), userId);
-    
-    try {
-      const snapshot = await getDoc(recoveryCodesRef);
-      if (!snapshot.exists()) return false;
-      
-      const data = snapshot.data();
-      const codes: string[] = data.codes || [];
-      
-      // Find matching code
-      let matchedHash: string | null = null;
-      for (const hash of codes) {
-        if (await this.verifyRecoveryCode(code, hash)) {
-          matchedHash = hash;
-          break;
-        }
-      }
-      
-      if (!matchedHash) {
-        return false;
-      }
-      
-      // Remove the used code atomically using Firestore arrayRemove
-      await updateDoc(recoveryCodesRef, {
-        codes: arrayRemove(matchedHash),
-      });
-      
-      return true;
-    } catch (error) {
-      console.error('Error validating recovery code:', error);
-      return false;
+  private static base64ToUint8Array(base64: string): Uint8Array {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
     }
+    return bytes;
   }
 }
