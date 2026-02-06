@@ -68,15 +68,6 @@ export const router = createBrowserRouter([
           return { Component: FAQ };
         },
       },
-      // About page (lazy loaded)
-      {
-        path: 'about',
-        HydrateFallback: Loading,
-        lazy: async () => {
-          const { default: About } = await import('@screens/About');
-          return { Component: About };
-        },
-      },
     ],
   },
 ]);

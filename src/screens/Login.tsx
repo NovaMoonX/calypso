@@ -1,11 +1,10 @@
 import { CalypsoLogo } from '@components/Logo';
+import { PageNavigation } from '@components/PageNavigation';
 import { useAuth } from '@hooks/useAuth';
 import { Button, Input } from '@moondreamsdev/dreamer-ui/components';
 import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
-import { join } from '@moondreamsdev/dreamer-ui/utils';
 import { getTabId } from '@utils/tabCommunication';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -41,39 +40,7 @@ export function Login() {
 
   return (
     <div className='page flex items-center justify-center'>
-      {/* Top navigation links */}
-      <div className='fixed top-4 left-1/2 -translate-x-1/2 sm:left-4 sm:translate-x-0 z-40 flex gap-3 sm:gap-4'>
-        <Link
-          to='/why-use'
-          className={join(
-            'font-mono text-xs tracking-wider uppercase',
-            'text-foreground/60 hover:text-foreground transition-colors',
-            'underline decoration-foreground/20 hover:decoration-foreground/60'
-          )}
-        >
-          Why Use?
-        </Link>
-        <Link
-          to='/faq'
-          className={join(
-            'font-mono text-xs tracking-wider uppercase',
-            'text-foreground/60 hover:text-foreground transition-colors',
-            'underline decoration-foreground/20 hover:decoration-foreground/60'
-          )}
-        >
-          FAQ
-        </Link>
-        <Link
-          to='/about'
-          className={join(
-            'font-mono text-xs tracking-wider uppercase',
-            'text-foreground/60 hover:text-foreground transition-colors',
-            'underline decoration-foreground/20 hover:decoration-foreground/60'
-          )}
-        >
-          About
-        </Link>
-      </div>
+      <PageNavigation currentPage='login' />
 
       <div className='w-full max-w-md space-y-8 px-4'>
         <div className='space-y-6 text-center'>
