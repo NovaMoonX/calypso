@@ -70,14 +70,15 @@ export function useSecureFileViewer(): UseSecureFileViewerReturn {
 
       // Convert to base64 efficiently (avoid stack overflow for large files)
       const bytes = new Uint8Array(encryptedBuffer);
-      let binary = '';
+      const chunks: string[] = [];
       const chunkSize = 8192; // Process in 8KB chunks
       
       for (let i = 0; i < bytes.length; i += chunkSize) {
         const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
-        binary += String.fromCharCode(...chunk);
+        chunks.push(String.fromCharCode(...chunk));
       }
       
+      const binary = chunks.join('');
       const encryptedBase64 = btoa(binary);
 
       // Decrypt file

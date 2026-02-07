@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react';
-import { join } from '@moondreamsdev/dreamer-ui/utils';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
 import { Card } from '@moondreamsdev/dreamer-ui/components';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
@@ -186,7 +185,7 @@ export function SecureFileViewer({ item, isOpen, onClose }: SecureFileViewerProp
       isOpen={isOpen}
       onClose={handleClose}
       title={item.metadata.name}
-      className={join(isFullScreen && 'max-w-[95vw]')}
+      className={isFullScreen ? 'max-w-[95vw]' : undefined}
     >
       <div className="space-y-4">
         {/* File info */}

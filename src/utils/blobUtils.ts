@@ -13,9 +13,9 @@ export function createSecureBlobUrl(
   data: ArrayBuffer | Uint8Array,
   mimeType: string
 ): string {
-  // Ensure we have a proper ArrayBuffer
-  const arrayBuffer = data instanceof ArrayBuffer ? data : data.buffer as ArrayBuffer;
-  const blob = new Blob([arrayBuffer], { type: mimeType });
+  // Blob accepts ArrayBuffer and typed arrays
+  // We know the data comes from our encryption service, so it's safe
+  const blob = new Blob([data as BlobPart], { type: mimeType });
   const blobUrl = URL.createObjectURL(blob);
   return blobUrl;
 }
