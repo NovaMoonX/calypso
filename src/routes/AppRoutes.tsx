@@ -50,13 +50,22 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      // About page (lazy loaded)
+      // Why Use page (lazy loaded)
       {
-        path: 'about',
+        path: 'why-use',
         HydrateFallback: Loading,
         lazy: async () => {
-          const { default: About } = await import('@screens/About');
-          return { Component: About };
+          const { default: WhyUse } = await import('@screens/WhyUse');
+          return { Component: WhyUse };
+        },
+      },
+      // FAQ page (lazy loaded)
+      {
+        path: 'faq',
+        HydrateFallback: Loading,
+        lazy: async () => {
+          const { default: FAQ } = await import('@screens/FAQ');
+          return { Component: FAQ };
         },
       },
     ],

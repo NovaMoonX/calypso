@@ -1,4 +1,5 @@
 import { CalypsoLogo } from '@components/Logo';
+import { PageNavigation } from '@components/PageNavigation';
 import { useAuth } from '@hooks/useAuth';
 import { Button, Input } from '@moondreamsdev/dreamer-ui/components';
 import { useToast } from '@moondreamsdev/dreamer-ui/hooks';
@@ -39,6 +40,8 @@ export function Login() {
 
   return (
     <div className='page flex items-center justify-center'>
+      <PageNavigation currentPage='login' />
+
       <div className='w-full max-w-md space-y-8 px-4'>
         <div className='space-y-6 text-center'>
           <div className='flex justify-center'>
