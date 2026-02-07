@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { join } from '@moondreamsdev/dreamer-ui/utils';
 import { Button } from '@moondreamsdev/dreamer-ui/components';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
@@ -17,6 +18,7 @@ import { FileUploadModal } from '@components/FileUploadModal';
 export function Dashboard() {
   const { user, signOut } = useAuth();
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const {
     items,
     currentPath,
@@ -131,6 +133,13 @@ export function Dashboard() {
           <CalypsoLogoWithText size={32} />
           <div className="flex items-center gap-4">
             <span className="text-xs text-foreground/70">{user?.email}</span>
+            <Button 
+              variant="secondary" 
+              onClick={() => navigate('/auth/change-passphrase')} 
+              className="font-mono text-xs tracking-wider"
+            >
+              CHANGE PASSPHRASE
+            </Button>
             <Button variant="secondary" onClick={signOut} className="font-mono text-xs tracking-wider">
               SIGN OUT
             </Button>
@@ -159,15 +168,27 @@ export function Dashboard() {
       <main className="container mx-auto px-4 py-8">
         {/* Actions */}
         <div className="mb-6 flex flex-wrap gap-2">
-          <Button variant="primary" onClick={() => setShowNewFolderModal(true)} className="font-mono text-xs tracking-wider">
+          <Button 
+            variant="primary" 
+            onClick={() => setShowNewFolderModal(true)} 
+            className="font-mono text-xs tracking-wider"
+          >
             <Plus size={16} className="mr-2" />
             NEW FOLDER
           </Button>
-          <Button variant="primary" onClick={() => setShowNewTextModal(true)} className="font-mono text-xs tracking-wider">
+          <Button 
+            variant="primary" 
+            onClick={() => setShowNewTextModal(true)} 
+            className="font-mono text-xs tracking-wider"
+          >
             <Plus size={16} className="mr-2" />
             NEW TEXT
           </Button>
-          <Button variant="primary" onClick={() => setShowUploadModal(true)} className="font-mono text-xs tracking-wider">
+          <Button 
+            variant="primary" 
+            onClick={() => setShowUploadModal(true)} 
+            className="font-mono text-xs tracking-wider"
+          >
             <Plus size={16} className="mr-2" />
             UPLOAD FILE
           </Button>

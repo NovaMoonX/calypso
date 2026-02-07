@@ -1,5 +1,6 @@
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@lib/firebase/FirebaseConfig';
+import { RecoveryCodeEntry, KeyRotationMetadata } from '@lib/types/vault.types';
 
 interface UserSettings {
   salt?: string; // Base64 encoded salt
@@ -8,6 +9,8 @@ interface UserSettings {
   verifierIv?: string; // Base64 encoded IV for verifier
   createdAt: number;
   updatedAt: number;
+  recoveryCodes?: RecoveryCodeEntry[]; // Recovery codes with wrapped master keys
+  keyRotation?: KeyRotationMetadata; // Key rotation metadata
 }
 
 export class UserSettingsService {
@@ -110,6 +113,99 @@ export class UserSettingsService {
     } catch (error) {
       console.error('Error checking passphrase status:', error);
       return false;
+    }
+  }
+
+  /**
+   * Store recovery codes with wrapped master keys
+   */
+  static async storeRecoveryCodes(userId: string, recoveryCodes: RecoveryCodeEntry[]): Promise<void> {
+    try {
+      const docRef = doc(db, 'user_settings', userId);
+      await updateDoc(docRef, {
+        recoveryCodes,
+        updatedAt: Date.now(),
+      });
+    } catch (error) {
+      console.error('Error storing recovery codes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get recovery codes from user settings
+   */
+  static async getRecoveryCodes(userId: string): Promise<RecoveryCodeEntry[]> {
+    try {
+      const settings = await this.getUserSettings(userId);
+      return settings?.recoveryCodes ?? [];
+    } catch (error) {
+      console.error('Error getting recovery codes:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Update key rotation metadata
+   */
+  static async updateKeyRotation(userId: string, keyRotation: Partial<KeyRotationMetadata>): Promise<void> {
+    try {
+      const docRef = doc(db, 'user_settings', userId);
+      const settings = await this.getUserSettings(userId);
+      
+      const updatedKeyRotation: KeyRotationMetadata = {
+        ...(settings?.keyRotation ?? {
+          activeKeyVersion: 1,
+          rotationInProgress: false,
+          lastProcessedId: null,
+          totalItems: null,
+          processedItems: null,
+        }),
+        ...keyRotation,
+      };
+
+      await updateDoc(docRef, {
+        keyRotation: updatedKeyRotation,
+        updatedAt: Date.now(),
+      });
+    } catch (error) {
+      console.error('Error updating key rotation:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get key rotation metadata
+   */
+  static async getKeyRotation(userId: string): Promise<KeyRotationMetadata | null> {
+    try {
+      const settings = await this.getUserSettings(userId);
+      return settings?.keyRotation ?? null;
+    } catch (error) {
+      console.error('Error getting key rotation metadata:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Initialize key rotation metadata with default values
+   */
+  static async initializeKeyRotation(userId: string): Promise<void> {
+    try {
+      const docRef = doc(db, 'user_settings', userId);
+      await updateDoc(docRef, {
+        keyRotation: {
+          activeKeyVersion: 1,
+          rotationInProgress: false,
+          lastProcessedId: null,
+          totalItems: null,
+          processedItems: null,
+        } as KeyRotationMetadata,
+        updatedAt: Date.now(),
+      });
+    } catch (error) {
+      console.error('Error initializing key rotation:', error);
+      throw error;
     }
   }
 }
