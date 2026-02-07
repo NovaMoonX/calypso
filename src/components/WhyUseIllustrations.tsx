@@ -21,7 +21,7 @@ export function SecurityIllustration({ className = 'w-48 h-48' }: IllustrationPr
     >
       {/* Shield outline - adjusted to be more balanced */}
       <path
-        d="M100 30 L160 50 L160 95 C160 130, 130 155, 100 170 C70 155, 40 130, 40 95 L40 50 Z"
+        d="M100 36 L160 56 L160 95 C160 132, 130 160, 100 176 C70 160, 40 132, 40 95 L40 56 Z"
         stroke="currentColor"
         strokeWidth="3"
         fill="none"
@@ -137,7 +137,7 @@ export function SimplicityIllustration({ className = 'w-48 h-48' }: Illustration
       
       {/* Sparkle effect - simplicity star */}
       <path
-        d="M160 120 L163 127 L170 130 L163 133 L160 140 L157 133 L150 130 L157 127 Z"
+        d="M155 120 L158 127 L165 130 L158 133 L155 140 L152 133 L145 130 L152 127 Z"
         fill="currentColor"
         opacity="0.6"
       />
@@ -157,97 +157,90 @@ export function ControlIllustration({ className = 'w-48 h-48' }: IllustrationPro
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* User circle */}
-      <circle
-        cx="100"
-        cy="80"
-        r="30"
-        stroke="currentColor"
-        strokeWidth="3"
-        fill="currentColor"
-        fillOpacity="0.1"
-      />
-      
-      {/* User head */}
-      <circle
-        cx="100"
-        cy="75"
-        r="12"
-        fill="currentColor"
-        opacity="0.4"
-      />
-      
-      {/* User shoulders - properly within circle */}
-      <path
-        d="M78 95 Q78 86, 100 86 Q122 86, 122 95"
-        stroke="currentColor"
-        strokeWidth="3"
-        fill="none"
-        strokeLinecap="round"
-      />
-      
-      {/* Key */}
-      <g transform="translate(100, 140)">
-        {/* Key bow (handle) */}
+      <g transform="translate(100 100) scale(1.15) translate(-100 -100)">
+        {/* User circle */}
         <circle
-          cx="0"
-          cy="0"
-          r="12"
+          cx="100"
+          cy="80"
+          r="30"
           stroke="currentColor"
           strokeWidth="3"
           fill="currentColor"
           fillOpacity="0.1"
         />
+
+        {/* User head */}
         <circle
-          cx="0"
-          cy="0"
-          r="6"
+          cx="100"
+          cy="75"
+          r="12"
+          fill="currentColor"
+          opacity="0.4"
+        />
+
+        {/* User shoulders - properly within circle */}
+        <path
+          d="M82 95 Q82 88, 100 88 Q118 88, 118 95"
+          stroke="currentColor"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
+
+        {/* Key */}
+        <g transform="translate(100, 138)">
+          {/* Key bow (handle) */}
+          <circle
+            cx="0"
+            cy="0"
+            r="12"
+            stroke="currentColor"
+            strokeWidth="3"
+            fill="currentColor"
+            fillOpacity="0.1"
+          />
+          <circle
+            cx="0"
+            cy="0"
+            r="6"
+            stroke="currentColor"
+            strokeWidth="2"
+            fill="none"
+          />
+
+          {/* Key shaft */}
+          <rect
+            x="12"
+            y="-2"
+            width="40"
+            height="4"
+            fill="currentColor"
+          />
+
+          {/* Key teeth */}
+          <rect x="40" y="-4" width="3" height="4" fill="currentColor" />
+          <rect x="35" y="-4" width="3" height="4" fill="currentColor" />
+          <rect x="45" y="-4" width="3" height="4" fill="currentColor" />
+        </g>
+
+        {/* Connection line from user to key */}
+        <path
+          d="M100 110 L100 126"
           stroke="currentColor"
           strokeWidth="2"
-          fill="none"
+          strokeDasharray="4 4"
+          opacity="0.4"
         />
-        
-        {/* Key shaft */}
-        <rect
-          x="10"
-          y="-2"
-          width="35"
-          height="4"
-          fill="currentColor"
-        />
-        
-        {/* Key teeth */}
-        <rect x="40" y="-6" width="3" height="4" fill="currentColor" />
-        <rect x="35" y="-6" width="3" height="6" fill="currentColor" />
-        <rect x="45" y="-6" width="3" height="3" fill="currentColor" />
-      </g>
-      
-      {/* Connection line from user to key */}
-      <path
-        d="M100 110 L100 128"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeDasharray="4 4"
-        opacity="0.4"
-      />
-      
-      {/* Control indicators - checkmarks - better positioned */}
-      <g opacity="0.5">
+
+        {/* Subtle control accents */}
+        <circle cx="78" cy="130" r="2" fill="currentColor" opacity="0.35" />
+        <circle cx="122" cy="130" r="2" fill="currentColor" opacity="0.35" />
         <path
-          d="M50 120 L55 125 L65 115"
+          d="M100 126 L100 118"
           stroke="currentColor"
-          strokeWidth="2.5"
-          fill="none"
+          strokeWidth="2"
+          opacity="0.25"
           strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M135 120 L140 125 L150 115"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
         />
       </g>
     </svg>
@@ -268,7 +261,7 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
     >
       {/* Open lock shackle */}
       <path
-        d="M80 100 V70 C80 53.4315, 90.4315 43, 100 43 C109.569 43, 120 53.4315, 120 70 V85"
+        d="M70 100 V70 C70 53.4315, 85.4315 43, 100 43 C114.569 43, 130 53.4315, 130 70 V85"
         stroke="currentColor"
         strokeWidth="3"
         fill="none"
@@ -277,9 +270,9 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
       
       {/* Lock body - properly sized and centered */}
       <rect
-        x="70"
+        x="55"
         y="100"
-        width="60"
+        width="90"
         height="60"
         rx="6"
         stroke="currentColor"
@@ -291,49 +284,25 @@ export function NoLockInIllustration({ className = 'w-48 h-48' }: IllustrationPr
       {/* Open keyhole with rays */}
       <circle
         cx="100"
-        cy="120"
-        r="8"
+        cy="126"
+        r="6"
         fill="currentColor"
         opacity="0.3"
       />
       <rect
-        x="96"
-        y="128"
-        width="8"
-        height="16"
+        x="98"
+        y="132"
+        width="4"
+        height="12"
         fill="currentColor"
         opacity="0.3"
       />
       
       {/* Freedom rays */}
-      <path d="M100 112 L100 92" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
-      <path d="M110 115 L120 102" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
-      <path d="M90 115 L80 102" stroke="currentColor" strokeWidth="2" opacity="0.4" strokeLinecap="round" />
+      <path d="M100 118 L100 111" stroke="currentColor" strokeWidth="2" opacity="0.35" strokeLinecap="round" />
+      <path d="M106 120 L111 115" stroke="currentColor" strokeWidth="2" opacity="0.35" strokeLinecap="round" />
+      <path d="M94 120 L89 115" stroke="currentColor" strokeWidth="2" opacity="0.35" strokeLinecap="round" />
       
-      {/* Export/download arrows - better positioned */}
-      <g transform="translate(50, 125)">
-        <path
-          d="M0 0 L0 12 M-4 8 L0 12 L4 8"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.5"
-        />
-      </g>
-      
-      <g transform="translate(150, 125)">
-        <path
-          d="M0 0 L0 12 M-4 8 L0 12 L4 8"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.5"
-        />
-      </g>
     </svg>
   );
 }

@@ -181,7 +181,7 @@ export function FAQ() {
               title: faq.question,
               content: faq.answer,
             }))}
-            className="space-y-3"
+            className='mb-0'
           />
 
           {/* Back Links */}
