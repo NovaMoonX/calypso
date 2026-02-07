@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { join } from '@moondreamsdev/dreamer-ui/utils';
 import { Modal } from '@moondreamsdev/dreamer-ui/components';
 import { Card } from '@moondreamsdev/dreamer-ui/components';
@@ -16,7 +16,6 @@ interface SecureFileViewerProps {
 
 export function SecureFileViewer({ item, isOpen, onClose }: SecureFileViewerProps) {
   const { blobUrl, isLoading, error, decryptedData, loadFile, cleanup } = useSecureFileViewer();
-  const [textContent, setTextContent] = useState<string | null>(null);
 
   // Load file when item changes
   useEffect(() => {
@@ -25,20 +24,19 @@ export function SecureFileViewer({ item, isOpen, onClose }: SecureFileViewerProp
     }
   }, [item, isOpen, loadFile]);
 
-  // Handle text file decoding
-  useEffect(() => {
+  // Decode text content using useMemo instead of useState
+  const textContent = useMemo(() => {
     if (decryptedData && item?.metadata.mimeType?.startsWith('text/')) {
-      const text = new TextDecoder().decode(decryptedData);
-      setTextContent(text);
-    } else {
-      setTextContent(null);
+      const result = new TextDecoder().decode(decryptedData);
+      return result;
     }
+    
+    return null;
   }, [decryptedData, item]);
 
   // Cleanup on close
   const handleClose = () => {
     cleanup();
-    setTextContent(null);
     onClose();
   };
 
