@@ -13,6 +13,7 @@ import { Plus, ChevronLeft, Trash } from '@moondreamsdev/dreamer-ui/symbols';
 import { FolderIcon, FileTextIcon, ImageIcon, VideoIcon, FileIcon } from '@components/Icons';
 import { CalypsoLogoWithText } from '@components/Logo';
 import { FileUploadModal } from '@components/FileUploadModal';
+import { SecureFileViewer } from '@components/SecureFileViewer';
 
 export function Dashboard() {
   const { user, signOut } = useAuth();
@@ -32,6 +33,8 @@ export function Dashboard() {
   const [showNewFolderModal, setShowNewFolderModal] = useState(false);
   const [showNewTextModal, setShowNewTextModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showFileViewer, setShowFileViewer] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<VaultItem | null>(null);
   const [newFolderName, setNewFolderName] = useState('');
   const [newTextName, setNewTextName] = useState('');
   const [newTextContent, setNewTextContent] = useState('');
@@ -89,6 +92,16 @@ export function Dashboard() {
         description: 'Failed to delete item', 
         type: 'error' 
       });
+    }
+  };
+
+  const handleViewItem = (item: VaultItem) => {
+    if (item.type === 'folder') {
+      navigateToFolder(item.id);
+    } else {
+      // View text, image, video, or file
+      setSelectedItem(item);
+      setShowFileViewer(true);
     }
   };
 
@@ -187,11 +200,7 @@ export function Dashboard() {
             {items.map((item) => (
               <div
                 key={item.id}
-                onClick={() => {
-                  if (item.type === 'folder') {
-                    navigateToFolder(item.id);
-                  }
-                }}
+                onClick={() => handleViewItem(item)}
                 className="cursor-pointer"
               >
                 <Card
@@ -306,6 +315,16 @@ export function Dashboard() {
       <FileUploadModal 
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
+      />
+
+      {/* Secure File Viewer */}
+      <SecureFileViewer
+        item={selectedItem}
+        isOpen={showFileViewer}
+        onClose={() => {
+          setShowFileViewer(false);
+          setSelectedItem(null);
+        }}
       />
     </div>
   );

@@ -12,6 +12,8 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 - 🛡️ **Timing Attack Protection**: Constant-time comparisons for security-critical operations
 - 📦 **Per-Item Encryption**: Each item has a unique Data Encryption Key (DEK)
 - ☁️ **Cloud Salt Storage**: Encryption salt stored securely in Firestore for seamless re-authentication
+- 🔓 **JIT Blob Decryption**: Just-In-Time decryption creates temporary in-memory Blob URLs for secure file viewing
+- 🧹 **Automatic Memory Cleanup**: Decrypted data automatically cleared when viewer closes
 
 ### Authentication & Access
 - 📧 **Passwordless Authentication**: Firebase Email Link authentication
@@ -29,6 +31,8 @@ A zero-knowledge encrypted storage vault for securely storing sensitive digital 
 - ✏️ **File Renaming**: Rename files before uploading to the vault
 - 🛡️ **Flexible File Support**: Upload any file type including custom document formats (50MB max per file)
 - 🗂️ **Smart Navigation**: Back button with breadcrumb path display
+- 👁️ **In-House Secure Viewer**: Built-in viewer for images, PDFs, videos, audio, and text files
+- 🔒 **Browser-Only Decryption**: Files decrypted and viewed entirely in browser memory (no third-party services)
 
 ### User Interface
 - 🌑 **Monochrome Security Theme**: Pure grayscale design (black, gray, white)
@@ -82,6 +86,53 @@ Calypso implements a comprehensive zero-knowledge encryption system where your d
 3. Item encrypted with DEK → DEK encrypted with Master Key
 4. Encrypted item + Encrypted DEK stored in Firebase
 5. To decrypt: Retrieve from Firebase → Decrypt DEK with Master Key → Decrypt item with DEK
+
+### Secure File Viewer (JIT Blob Decryption)
+
+Calypso implements a custom in-house viewer using the **Just-In-Time (JIT) Blob Decryption** pattern, ensuring that your files are never sent to third-party cloud viewers in plaintext.
+
+#### How It Works
+
+1. **Download**: Encrypted file fetched from Firebase Storage as ArrayBuffer
+2. **Decrypt**: File decrypted in-browser using your master key and the file's unique DEK
+3. **Blobify**: Temporary Blob URL created via `URL.createObjectURL()` (exists only in browser memory)
+4. **Display**: File rendered using native HTML5 elements:
+   - **Images**: `<img>` tag with blob URL
+   - **PDFs**: `<iframe>` with sandbox security attributes
+   - **Videos**: `<video>` tag with native controls
+   - **Audio**: `<audio>` tag with custom player UI
+   - **Text**: Pre-formatted text display
+   - **Other Files**: Download-only option
+
+#### Security Measures
+
+- **Memory Sanitization**: Blob URLs automatically revoked when viewer closes
+- **No Persistent Cache**: Decrypted data never written to disk
+- **Sandboxed PDFs**: PDF viewer uses `<iframe sandbox="allow-same-origin">` to prevent script execution
+  - Scripts are disabled to prevent malicious PDFs from executing code
+  - Same-origin is allowed for blob: URLs to function properly
+- **Size Limit**: Current implementation optimized for files under 50MB
+- **Auto-Cleanup**: React cleanup hooks ensure memory is freed on component unmount
+- **Browser-Only**: All decryption happens client-side; no data sent to external services
+- **Chunk Processing**: ArrayBuffer to base64 conversion uses 8KB chunks to prevent stack overflow
+
+#### Supported File Types
+
+| File Type | View Method | Component |
+|-----------|-------------|-----------|
+| Images (JPG, PNG, GIF, etc.) | Direct display | Modal (fullscreen) |
+| PDFs | Sandboxed iframe | Modal (fullscreen) |
+| Videos (MP4, WebM, etc.) | HTML5 video player | Modal (dark mode) |
+| Audio (MP3, WAV, etc.) | HTML5 audio player | Card (floating player) |
+| Text (TXT, MD, etc.) | Pre-formatted text | Card |
+| Other Files | Download-only | Download button |
+
+#### Future Enhancements
+
+For files larger than 50MB, streaming decryption via the Web Streams API can be implemented:
+- Files fetched in chunks (e.g., 1MB at a time)
+- Each chunk decrypted on-the-fly
+- Streamed to `MediaSource` for large video/audio playback
 
 ## Setup
 
@@ -159,6 +210,76 @@ Deploy to Firebase Hosting:
 npm run build
 firebase deploy
 ```
+
+### Security Headers (Recommended)
+
+For enhanced security, configure your hosting provider to send the following HTTP headers:
+
+**Content Security Policy (CSP)**:
+
+> **Note**: The CSP configuration below uses `'unsafe-inline'` for scripts and styles, which is required for Vite's development build and some runtime features. For maximum security in production, consider:
+> - Using CSP nonces or hashes for inline scripts/styles
+> - Moving all inline code to external files
+> - Implementing a stricter CSP policy that removes `'unsafe-inline'`
+
+```
+Content-Security-Policy: 
+  default-src 'self'; 
+  script-src 'self' 'unsafe-inline'; 
+  style-src 'self' 'unsafe-inline'; 
+  img-src 'self' blob: data:; 
+  media-src 'self' blob:; 
+  connect-src 'self' https://*.firebaseio.com https://*.googleapis.com; 
+  object-src 'none'; 
+  frame-ancestors 'none'; 
+  base-uri 'self';
+```
+
+**Additional Security Headers**:
+```
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+```
+
+For Firebase Hosting, add these to `firebase.json`:
+```json
+{
+  "hosting": {
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self' https://*.firebaseio.com https://*.googleapis.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self';"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+These headers help prevent:
+- **XSS attacks**: CSP restricts script sources
+- **Clickjacking**: X-Frame-Options prevents embedding
+- **MIME sniffing**: X-Content-Type-Options enforces correct MIME types
+- **Data leaks**: Referrer-Policy controls referrer information
+- **Blob URL sniffing**: CSP allows blob: sources only for img and media
 
 ## Usage
 
@@ -455,29 +576,40 @@ interface VaultItem {
 ```
 src/
 ├── components/          # Reusable UI components
-│   ├── Icons.tsx       # Custom SVG icons
-│   └── Logo.tsx        # Calypso logo component
+│   ├── FileUploadModal.tsx      # File upload UI
+│   ├── Icons.tsx                # Custom SVG icons
+│   ├── Logo.tsx                 # Calypso logo component
+│   ├── SecureFileViewer.tsx     # JIT blob decryption file viewer
+│   └── ...
 ├── contexts/           # React Context providers
 │   ├── AuthProvider.tsx    # Authentication & master key management
-│   └── VaultProvider.tsx   # Vault state & CRUD operations
+│   ├── VaultProvider.tsx   # Vault state & CRUD operations
+│   └── ...
 ├── hooks/              # Custom React hooks
-│   ├── useAuth.tsx     # Auth context hook
-│   └── useVault.tsx    # Vault context hook
+│   ├── useAuth.tsx            # Auth context hook
+│   ├── useSecureFileViewer.tsx # Secure file viewing with blob management
+│   ├── useVault.tsx           # Vault context hook
+│   └── ...
 ├── lib/                # Utilities and configuration
 │   ├── firebase/
 │   │   └── FirebaseConfig.ts
-│   └── types/
-│       └── vault.types.ts
+│   ├── types/
+│   │   └── vault.types.ts
+│   └── utils/
+│       └── fileUtils.ts       # File type detection utilities
 ├── screens/            # Page components
 │   ├── Login.tsx
 │   ├── AuthVerify.tsx
 │   ├── PassphraseSetup.tsx
 │   ├── RecoveryCodes.tsx
-│   └── Dashboard.tsx
+│   ├── Dashboard.tsx
+│   └── ...
 ├── services/           # Business logic
 │   ├── EncryptionService.ts       # AES-256-GCM encryption with verifier support
 │   ├── RecoveryCodesService.ts    # Recovery code management
 │   └── UserSettingsService.ts     # User settings (salt, verifier) management
+├── utils/              # Utility functions
+│   └── blobUtils.ts           # Blob URL creation/revocation utilities
 ├── routes/             # Router configuration
 └── ui/                 # Layout components
 ```
