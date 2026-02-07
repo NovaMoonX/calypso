@@ -100,7 +100,6 @@ export function SecureFileViewer({ item, isOpen, onClose }: SecureFileViewerProp
               src={blobUrl}
               controls
               className="max-w-full max-h-[70vh]"
-              controlsList="nodownload"
             >
               Your browser does not support video playback.
             </video>
@@ -129,7 +128,6 @@ export function SecureFileViewer({ item, isOpen, onClose }: SecureFileViewerProp
               src={blobUrl}
               controls
               className="w-full"
-              controlsList="nodownload"
             >
               Your browser does not support audio playback.
             </audio>
@@ -146,7 +144,7 @@ export function SecureFileViewer({ item, isOpen, onClose }: SecureFileViewerProp
               src={blobUrl}
               title={item.metadata.name}
               className="w-full h-full border-0"
-              sandbox="allow-scripts allow-same-origin"
+              sandbox="allow-same-origin"
             />
           </div>
         );

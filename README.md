@@ -108,10 +108,13 @@ Calypso implements a custom in-house viewer using the **Just-In-Time (JIT) Blob 
 
 - **Memory Sanitization**: Blob URLs automatically revoked when viewer closes
 - **No Persistent Cache**: Decrypted data never written to disk
-- **Sandboxed PDFs**: PDF viewer uses `<iframe sandbox>` to prevent malicious scripts
+- **Sandboxed PDFs**: PDF viewer uses `<iframe sandbox="allow-same-origin">` to prevent script execution
+  - Scripts are disabled to prevent malicious PDFs from executing code
+  - Same-origin is allowed for blob: URLs to function properly
 - **Size Limit**: Current implementation optimized for files under 50MB
 - **Auto-Cleanup**: React cleanup hooks ensure memory is freed on component unmount
 - **Browser-Only**: All decryption happens client-side; no data sent to external services
+- **Chunk Processing**: ArrayBuffer to base64 conversion uses 8KB chunks to prevent stack overflow
 
 #### Supported File Types
 
@@ -213,6 +216,12 @@ firebase deploy
 For enhanced security, configure your hosting provider to send the following HTTP headers:
 
 **Content Security Policy (CSP)**:
+
+> **Note**: The CSP configuration below uses `'unsafe-inline'` for scripts and styles, which is required for Vite's development build and some runtime features. For maximum security in production, consider:
+> - Using CSP nonces or hashes for inline scripts/styles
+> - Moving all inline code to external files
+> - Implementing a stricter CSP policy that removes `'unsafe-inline'`
+
 ```
 Content-Security-Policy: 
   default-src 'self'; 

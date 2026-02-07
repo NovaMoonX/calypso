@@ -68,10 +68,17 @@ export function useSecureFileViewer(): UseSecureFileViewerReturn {
       const encryptedBlob = await response.blob();
       const encryptedBuffer = await encryptedBlob.arrayBuffer();
 
-      // Convert to base64
-      const encryptedBase64 = btoa(
-        String.fromCharCode(...new Uint8Array(encryptedBuffer))
-      );
+      // Convert to base64 efficiently (avoid stack overflow for large files)
+      const bytes = new Uint8Array(encryptedBuffer);
+      let binary = '';
+      const chunkSize = 8192; // Process in 8KB chunks
+      
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+        binary += String.fromCharCode(...chunk);
+      }
+      
+      const encryptedBase64 = btoa(binary);
 
       // Decrypt file
       const decrypted = await EncryptionService.decryptItem(
