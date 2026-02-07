@@ -36,24 +36,14 @@ export function PageNavigation({ currentPage }: PageNavigationProps) {
       {user && masterKey ? (
         <Link
           to='/dashboard'
-          className={join(
-            'font-mono text-xs tracking-wider uppercase',
-            currentPage === 'login'
-              ? 'text-foreground underline decoration-foreground/60'
-              : 'text-foreground/60 hover:text-foreground transition-colors underline decoration-foreground/20 hover:decoration-foreground/60'
-          )}
+          className='font-mono text-xs tracking-wider uppercase text-foreground/60 hover:text-foreground transition-colors underline decoration-foreground/20 hover:decoration-foreground/60'
         >
           Dashboard
         </Link>
       ) : user && !masterKey ? (
         <Link
           to='/auth/passphrase'
-          className={join(
-            'font-mono text-xs tracking-wider uppercase',
-            currentPage === 'login'
-              ? 'text-foreground underline decoration-foreground/60'
-              : 'text-foreground/60 hover:text-foreground transition-colors underline decoration-foreground/20 hover:decoration-foreground/60'
-          )}
+          className='font-mono text-xs tracking-wider uppercase text-foreground/60 hover:text-foreground transition-colors underline decoration-foreground/20 hover:decoration-foreground/60'
         >
           Enter Passphrase
         </Link>
